@@ -10,7 +10,7 @@ import Register from '@/page/login/register'
 
 Vue.use(Router);
 
-export default new Router({
+const router = new Router({
   routes: [
     {
       path: '/',
@@ -48,17 +48,36 @@ export default new Router({
     },
     {
     		path: '/login',
+    		name: 'Login',
         component: Login
     },
     {
 	      // 登录
 	      path: '/signin',
+    		name: 'Signin',
 	      component: Signin
     },
     {
 	      // 注册
 	      path: '/register',
+    		name: 'Register',
 	      component: Register
     }
   ]
 })
+router.beforeEach((to, from, next) => {
+	  // 导航钩子，全局钩子
+	  var user = localStorage.getItem('user');
+	  if(!user){
+			  if(to.name != 'Login' && to.name != 'Signin' && to.name != 'Register'){
+				  	!!user ? next() : next('/login');
+			  }else{
+			  		next();
+			  }
+	  }else{
+		  	next();
+	  }
+})
+
+
+export default router;
