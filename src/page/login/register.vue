@@ -5,7 +5,7 @@
 			<input type="tel" required="required" placeholder="输入手机号" />
 			<div>
 				<input type="number" placeholder="输入验证码" />
-				<a href="javascript:;" style="padding: 0;margin-top: 0;"><img src="http://localhost:3000/code"></a>
+				<a href="javascript:;" style="padding: 0;margin-top: 0;"><img :src="codeUrl" v-on:tap="getCode()"></a>
 			</div>
 			<input type="password" placeholder="设置密码" />
 			<input type="button" value="注册" />
@@ -19,6 +19,23 @@
 
 <script>
 	export default {
+		data(){
+			return {
+				codeUrl:'http://localhost:3000/code',
+				code: '',
+				mobile: '',
+				password: ''
+			}
+		},
+		mounted(){
+			
+		},
+		methods:{
+			getCode(){
+				let num = Math.random()*100;
+				this.codeUrl = 'http://localhost:3000/code?'+num;
+			}
+		}
 	}
 </script>
 
