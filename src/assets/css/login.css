@@ -72,7 +72,7 @@ body {
   position: relative;
   overflow: hidden;
 }
-.login > div > div > input[type="number"] {
+.login > div > div > input[name="code"] {
   width: 50%;
 }
 .login > div > div > a {

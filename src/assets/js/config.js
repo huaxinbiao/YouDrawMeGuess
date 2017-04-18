@@ -1,0 +1,1 @@
+global.API = 'http://localhost:3000';
