@@ -4,6 +4,7 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import store from './store'
+import VueResource from 'vue-resource';
 import './assets/js/config'
 
 import zh_CN from 'vee-validate/dist/locale/zh_CN';
@@ -23,11 +24,13 @@ Vue.use(VeeValidate, {
   locale: 'zh_CN',
 });
 
+//ajax请求
+Vue.use(VueResource);
+
 Vue.config.productionTip = false
 
 //连接socket
 Vue.prototype.socket = io.connect('http://localhost:3000/');
-
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

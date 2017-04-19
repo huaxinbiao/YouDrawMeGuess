@@ -19,7 +19,7 @@
 				</ul>
 				<div class="Hui-leftBtn">
 			        <a href="#">设置</a>
-			        <a href="javascript:;">退出应用</a>
+			        <a href="javascript:;" v-on:tap="outlogin">退出登录</a>
 			    </div>
 			</div>
 		</div>
@@ -28,7 +28,25 @@
 
 <script>
 	export default{
-		
+		methods:{
+			outlogin(){
+		  		this.$http.get(global.API + '/outlogin',{
+					credentials: true
+				}).then((response) => {
+					let res = response.data;
+				  	/*if(res.code == 200){
+				  		mui.toast('退出成功');
+						localStorage.clear();
+		  				this.$router.push('/login');
+				  	}else{
+				  		this.getCode();
+				  		mui.toast(res.msg);
+				  	}*/
+				}, (response) => {
+					mui.toast('请求失败');
+				});
+			}
+		}
 	}
 </script>
 

@@ -67,15 +67,20 @@ const router = new Router({
 })
 router.beforeEach((to, from, next) => {
 	  // 导航钩子，全局钩子
-	  var user = localStorage.getItem('user');
+	  var user = localStorage.getItem('user'); //获取登录信息
 	  if(!user){
+	  		//未登录跳转登录
 			  if(to.name != 'Login' && to.name != 'Signin' && to.name != 'Register'){
-				  	!!user ? next() : next('/login');
+				  	!!user ? next() : next('/login'); 
 			  }else{
 			  		next();
 			  }
 	  }else{
-		  	next();
+			  if(to.name == 'Login' || to.name == 'Signin' || to.name == 'Register'){
+				  	!!user ? next('/index') : next();
+			  }else{
+			  		next();
+			  }
 	  }
 })
 

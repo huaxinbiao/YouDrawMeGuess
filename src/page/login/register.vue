@@ -21,7 +21,7 @@
 	export default {
 		data(){
 			return {
-				codeUrl: global.API + '/code',
+				codeUrl: global.API + '/code?' + Math.random()*1000,
 				code: '',
 				mobile: '',
 				password: ''
@@ -33,6 +33,7 @@
 		methods:{
 			getCode(){
 				let num = Math.random()*100;
+				this.code = '';
 				this.codeUrl = global.API + '/code?'+num;
 			},
 			validate(){
@@ -42,13 +43,25 @@
 	                password: this.password
 	            }).then(() => {
 				  	// success stuff
-				  	mui.post( global.API + '/reg',{
-					  	mobile: this.mobile,
+					this.$http.post(global.API + '/reg',{
+						mobile: this.mobile,
 		                code: this.code,
 		                password: this.password
-				  	},function(res){
-					  	console.log(res);
-				  	})
+					},{
+						credentials: true
+					}).then((response) => {
+						let res = response.data;
+					  	if(res.code == 200){
+					  		mui.toast('注册成功');
+					  		localStorage.setItem('user', JSON.stringify(res.data));
+					  		this.$router.push('/index');
+					  	}else{
+					  		this.getCode();
+					  		mui.toast(res.msg);
+					  	}
+					}, (response) => {
+						mui.toast('请求失败');
+					});
 				}).catch(() => {
 				  	// validation failed stuff
 				  	//console.log(this.errors.all())

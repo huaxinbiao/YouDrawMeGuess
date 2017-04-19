@@ -16,9 +16,8 @@ export default {
 	},
 	watch: {
     '$route' (to, from) {
-      const toDepth = to.path.split('/').length
-      const fromDepth = from.path.split('/').length
-      console.log(toDepth, fromDepth)
+      const toDepth = to.path.split('/').length;
+      const fromDepth = from.path.split('/').length;
       if(toDepth < fromDepth){
 					this.transitionName = 'slide-right';
       }else if(toDepth > fromDepth){
