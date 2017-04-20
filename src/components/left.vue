@@ -27,24 +27,22 @@
 </template>
 
 <script>
+import ajax from '@/assets/js/ajax';
+
 	export default{
+		mounted(){
+		},
 		methods:{
 			outlogin(){
-		  		this.$http.get(global.API + '/outlogin',{
-					credentials: true
-				}).then((response) => {
-					let res = response.data;
-				  	/*if(res.code == 200){
+				ajax(this, '/outlogin', 'get', {}, function(vm, res){
+				  	if(res.code == 200){
 				  		mui.toast('退出成功');
 						localStorage.clear();
-		  				this.$router.push('/login');
+		  				vm.$router.push('/login');
 				  	}else{
-				  		this.getCode();
 				  		mui.toast(res.msg);
-				  	}*/
-				}, (response) => {
-					mui.toast('请求失败');
-				});
+				  	}
+				})
 			}
 		}
 	}

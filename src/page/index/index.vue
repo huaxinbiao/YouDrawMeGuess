@@ -27,6 +27,12 @@ export default {
   },
   mounted(){
   	mui.init();
+  	this.socket.emit('login', {login:1}, function(){
+  		console.log(123)
+  	});
+	this.socket.on('disconnect',function(data){
+		console.log('断开连接')
+	});
   },
   components:{ Hheader, Hnav, Hleft }
 }
