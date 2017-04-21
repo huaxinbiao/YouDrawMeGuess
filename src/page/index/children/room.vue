@@ -58,6 +58,11 @@
 
 <script>
 	export default {
+		data(){
+			return {
+				
+			}
+		},
 		mounted(){
 	    	//主界面和侧滑菜单界面均支持区域滚动；
 	        mui('#offCanvasContentScroll').scroll({
@@ -66,7 +71,9 @@
 				 bounce: false, //是否启用回弹
 	        });
 	        mui('.mui-scroll-wrapper').on('tap','a' ,function(){location.href = this.getAttribute('href')})
-	    }
+	   	},
+		methods:{
+		}
 	}
 </script>
 

@@ -1,11 +1,12 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
+import './assets/js/config'
 import App from './App'
 import router from './router'
 import store from './store'
 import VueResource from 'vue-resource';
-import './assets/js/config'
+import Socket from './assets/js/socket'
 
 import zh_CN from 'vee-validate/dist/locale/zh_CN';
 import VeeValidate from 'vee-validate';
@@ -29,13 +30,14 @@ Vue.use(VueResource);
 
 Vue.config.productionTip = false
 
-//连接socket
-Vue.prototype.socket = io.connect('http://localhost:3000/');
+
 /* eslint-disable no-new */
-new Vue({
+var vm = new Vue({
   el: '#app',
   router,
   store,
   template: '<App/>',
   components: { App }
 })
+//全局监听断线重连
+Socket(vm);

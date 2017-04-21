@@ -11,8 +11,13 @@ export default {
   name: 'app',
   data () {
       return {
-        transitionName: 'slide-left'
+        transitionName: 'slide-left',
+				socket: this.$store.getters.getsocket
       }
+	},
+	mounted(){
+	},
+	methods:{
 	},
 	watch: {
     '$route' (to, from) {

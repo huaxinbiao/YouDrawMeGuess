@@ -24,7 +24,7 @@
 	                    <h3>你画我猜</h3>
 	                    <span>涂鸦猜谜才艺展示</span>
 	                </div>
-	                <div><router-link to="/login">登录</router-link></div>
+	                <div><a href="javascript:;" v-on:tap="disconnect">断开连接</a></div>
 	            </div>
 	            <div>
 	                <div><img src="../../../assets/images/icon1.png"></div>
@@ -32,7 +32,7 @@
 	                    <h3>你画我猜</h3>
 	                    <span>涂鸦猜谜才艺展示</span>
 	                </div>
-	                <div><router-link to="/index/room">登录</router-link></div>
+	                <div><a href="javascript:;" v-on:tap="rc">连接</a></div>
 	            </div>
 	        </div>
 	    </div>
@@ -41,6 +41,11 @@
 
 <script>
 	export default {
+		data(){
+			return {
+				socket: this.$store.getters.getsocket
+			}
+		},
 		mounted(){
 	    	//主界面和侧滑菜单界面均支持区域滚动；
 	        mui('#offCanvasContentScroll').scroll({
@@ -48,8 +53,18 @@
 				 deceleration:0.0005, //阻尼系数,系数越小滑动越灵敏
 				 bounce: false, //是否启用回弹
 	        });
-	        mui('.mui-scroll-wrapper').on('tap','a' ,function(){location.href = this.getAttribute('href')})
-	    }
+	        mui('.mui-scroll-wrapper').on('tap','a' ,function(){location.href = this.getAttribute('href')});
+	   	},
+		methods:{
+			disconnect(){
+				this.socket.disconnect();
+			},
+			rc(){
+				this.socket.emit('reconnec', {count: 1}, function(){
+		  			console.log('重连成功');
+			  	});
+			}
+		}
 	}
 </script>
 

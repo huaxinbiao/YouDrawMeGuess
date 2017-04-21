@@ -18,6 +18,7 @@
 </template>
 
 <script>
+import ajax from '@/assets/js/ajax';
 	export default {
 		data(){
 			return {
@@ -43,25 +44,20 @@
 	                password: this.password
 	            }).then(() => {
 				  	// success stuff
-					this.$http.post(global.API + '/reg',{
+					ajax(this, '/reg', 'post', {
 						mobile: this.mobile,
 		                code: this.code,
 		                password: this.password
-					},{
-						credentials: true
-					}).then((response) => {
-						let res = response.data;
+					}, function(vm, res){
 					  	if(res.code == 200){
 					  		mui.toast('注册成功');
 					  		localStorage.setItem('user', JSON.stringify(res.data));
-					  		this.$router.push('/index');
+					  		vm.$router.push('/index');
 					  	}else{
-					  		this.getCode();
+					  		vm.getCode();
 					  		mui.toast(res.msg);
 					  	}
-					}, (response) => {
-						mui.toast('请求失败');
-					});
+					})
 				}).catch(() => {
 				  	// validation failed stuff
 				  	//console.log(this.errors.all())
