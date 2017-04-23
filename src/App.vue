@@ -11,8 +11,7 @@ export default {
   name: 'app',
   data () {
       return {
-        transitionName: 'slide-left',
-				socket: this.$store.getters.getsocket
+        transitionName: 'slide-left'
       }
 	},
 	mounted(){
@@ -47,6 +46,7 @@ html,body{
 	  overflow: hidden;
 		width: 100%;
 		height: 100%;
+		background: #fff;
 }
 .child-view {
   	position: absolute;

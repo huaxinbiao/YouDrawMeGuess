@@ -3,22 +3,29 @@ const state = {
 	header: {
 		title: ''
 	},
-	socket: new io.connect(global.IO, {'reconnect':true,'auto connect':true,'force new connection':true})
+	initiative: 0, //是否主动断开连接
+	createroom: false //创建房间
 };
 const getters = {
 	getheader: state => {
 		return state.header
 	},
-	getsocket: state => {
-		return state.socket
+	getinitiative: state => {
+		return state.initiative
+	},
+	getcreateroom: state => {
+		return state.initiative
 	}
 };
 const mutations = {
 	setheader (state, option) {
 		state.header = option;
 	},
-	setsocket (state, obj) {
-		state.socket = obj;
+	setinitiative (state, i) {
+		state.initiative = i;
+	},
+	setcreateroom (state, i) {
+		state.initiative = i;
 	}
 };
 

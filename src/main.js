@@ -28,6 +28,10 @@ Vue.use(VeeValidate, {
 //ajax请求
 Vue.use(VueResource);
 
+//socket
+Vue.prototype.socket = io.connect(global.IO, {'reconnect':true,'auto connect':true});
+
+
 Vue.config.productionTip = false
 
 
@@ -39,5 +43,5 @@ var vm = new Vue({
   template: '<App/>',
   components: { App }
 })
-//全局监听断线重连
+
 Socket(vm);

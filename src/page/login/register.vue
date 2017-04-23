@@ -38,6 +38,7 @@ import ajax from '@/assets/js/ajax';
 				this.codeUrl = global.API + '/code?'+num;
 			},
 			validate(){
+				var that = this;
 				this.$validator.validateAll({
 	                mobile: this.mobile,
 	                code: this.code,
@@ -52,6 +53,7 @@ import ajax from '@/assets/js/ajax';
 					  	if(res.code == 200){
 					  		mui.toast('注册成功');
 					  		localStorage.setItem('user', JSON.stringify(res.data));
+					  		that.socket.connect(global.IO);
 					  		vm.$router.push('/index');
 					  	}else{
 					  		vm.getCode();
@@ -63,12 +65,12 @@ import ajax from '@/assets/js/ajax';
 				  	//console.log(this.errors.all())
 				  	//console.log(this.errors.all())
 				  	mui.toast(this.errors.all()[0])
-				});;
+				});
 			}
 		}
 	}
 </script>
 
-<style lang="less">
+<style scoped lang="less">
 @import "../../assets/css/login.less";
 </style>

@@ -27,6 +27,7 @@ import ajax from '@/assets/js/ajax';
 		},
 		methods:{
 			validate(){
+				var that = this;
 				this.$validator.validateAll({
 	                mobile: this.mobile,
 	                password: this.password
@@ -39,6 +40,7 @@ import ajax from '@/assets/js/ajax';
 					  	if(res.code == 200){
 					  		mui.toast('登录成功');
 					  		localStorage.setItem('user', JSON.stringify(res.data));
+					  		that.socket.connect(global.IO);
 					  		vm.$router.push('/index');
 					  	}else{
 					  		mui.toast('账户或密码错误');
@@ -55,6 +57,6 @@ import ajax from '@/assets/js/ajax';
 	}
 </script>
 
-<style lang="less">
+<style scoped lang="less">
 @import "../../assets/css/login.less";
 </style>

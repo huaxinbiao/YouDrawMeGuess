@@ -193,7 +193,9 @@ img{
     height: 20px;
 }
 #app{
-        
+    .mui-checkbox input[type=checkbox]:checked:before, .mui-radio input[type=radio]:checked:before{
+        color: #cd3d3d;
+    }    
     .mui-bar{
         background: #cd3d3d;
         .mui-icon{
@@ -227,6 +229,8 @@ img{
     .mui-bar .Hui-bar-right{
         font-size: 12px;
         color: #fff;
+        z-index: 10;
+        position: relative;
     }
 
 }
@@ -474,7 +478,119 @@ img{
     }
 }
 
-
+//重连动画
+#reconnection{
+    >div.reconnection{
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        background: #fff;
+        border: #e8e8e8 1px solid;
+        border-radius: 3px;
+        width: 260px;
+        height: 260px;
+        margin-top: -130px;
+        margin-left: -130px;
+        z-index:9999;
+        >p{
+            text-align: center;
+            color: #cd3d3d;
+            line-height: 30px;
+            margin-top: 110px;
+        }
+    }
+    .spinner {
+      margin: 50px 0 0 37%;
+      width: 32px;
+      height: 32px;
+      position: relative;
+    }
+     
+    .cube1, .cube2 {
+      background: #cd3d3d url(../images/icon1.png) no-repeat center;
+      background-size: 88%;
+      width: 30px;
+      height: 30px;
+      border-radius: 2px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      -webkit-animation: cubemove 2.4s infinite ease-in-out;
+      animation: cubemove 2.4s infinite ease-in-out;
+    }
+     
+    .cube2 {
+      -webkit-animation-delay: -0.9s;
+      animation-delay: -0.9s;
+    }
+     
+    @-webkit-keyframes cubemove {
+      25% { -webkit-transform: translateX(42px) rotate(-90deg) scale(0.5);opacity: 0.5;}
+      50% { -webkit-transform: translateX(42px) translateY(42px) rotate(-180deg);opacity: 1;}
+      75% { -webkit-transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5); opacity: 0.5;}
+      100% { -webkit-transform: rotate(-360deg);opacity: 1; }
+    }
+     
+    @keyframes cubemove {
+      25% {
+        transform: translateX(42px) rotate(-90deg) scale(0.5);
+        -webkit-transform: translateX(42px) rotate(-90deg) scale(0.5);
+        opacity: 0.5;
+      } 50% {
+        transform: translateX(42px) translateY(42px) rotate(-179deg);
+        -webkit-transform: translateX(42px) translateY(42px) rotate(-179deg);
+        opacity: 1;
+      } 50.1% {
+        transform: translateX(42px) translateY(42px) rotate(-180deg);
+        -webkit-transform: translateX(42px) translateY(42px) rotate(-180deg);
+        opacity: 1;
+      } 75% {
+        transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5);
+        -webkit-transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5);
+        opacity: 0.5;
+      } 100% {
+        transform: rotate(-360deg);
+        -webkit-transform: rotate(-360deg);
+        opacity: 1;
+      }
+    }
+}
+.mask-canvas-backdrop{
+    position: fixed;
+    z-index: 998;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: block;
+    transition: background 350ms cubic-bezier(.165,.84,.44,1);
+    background: rgba(0,0,0,.4);
+    box-shadow: -4px 0 4px rgba(0,0,0,.5), 4px 0 4px rgba(0,0,0,.5);
+    -webkit-tap-highlight-color: transparent;
+}
+.createRoom{
+    position: absolute;
+    top: 50%;
+    left: 15%;
+    width: 70%;
+    margin-top: -150px;
+    z-index: 999;
+    .mui-input-group{
+        border: #ddd 1px solid;
+        border-radius: 5px;
+        padding: 15px 0;
+        .mui-button-row{
+            margin-top: 15px;
+        }
+    }
+    .mui-input-group:before,.mui-input-group:after{
+        display: none;
+    }
+    input[type="text"]{
+        font-size: 14px;
+        padding-bottom: 13px;
+    }
+}
 
 
 

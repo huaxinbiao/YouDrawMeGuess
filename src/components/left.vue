@@ -34,10 +34,13 @@ import ajax from '@/assets/js/ajax';
 		},
 		methods:{
 			outlogin(){
+				var that = this;
 				ajax(this, '/outlogin', 'get', {}, function(vm, res){
 				  	if(res.code == 200){
 				  		mui.toast('退出成功');
 						localStorage.clear();
+						that.$store.commit('setinitiative', 1);
+						that.socket.disconnect();
 		  				vm.$router.push('/login');
 				  	}else{
 				  		mui.toast(res.msg);

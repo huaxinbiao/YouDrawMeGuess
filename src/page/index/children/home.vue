@@ -26,14 +26,6 @@
 	                </div>
 	                <div><a href="javascript:;" v-on:tap="disconnect">断开连接</a></div>
 	            </div>
-	            <div>
-	                <div><img src="../../../assets/images/icon1.png"></div>
-	                <div>
-	                    <h3>你画我猜</h3>
-	                    <span>涂鸦猜谜才艺展示</span>
-	                </div>
-	                <div><a href="javascript:;" v-on:tap="rc">连接</a></div>
-	            </div>
 	        </div>
 	    </div>
 	</div>
@@ -43,7 +35,7 @@
 	export default {
 		data(){
 			return {
-				socket: this.$store.getters.getsocket
+				
 			}
 		},
 		mounted(){
@@ -57,12 +49,8 @@
 	   	},
 		methods:{
 			disconnect(){
+				console.log('data')
 				this.socket.disconnect();
-			},
-			rc(){
-				this.socket.emit('reconnec', {count: 1}, function(){
-		  			console.log('重连成功');
-			  	});
 			}
 		}
 	}

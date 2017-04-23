@@ -42,18 +42,23 @@
 	    	switch (this.$route.name){
 	    		case 'home':
 	    			this.tabindex = 0;
+	    			this.$store.commit('setheader',this.tabbar[0])
 	    			break;
 	    		case 'room':
 	    			this.tabindex = 1;
+	    			this.$store.commit('setheader',this.tabbar[1])
 	    			break;
 	    		case 'news':
 	    			this.tabindex = 2;
+	    			this.$store.commit('setheader',this.tabbar[2])
 	    			break;
 	    		case 'find':
 	    			this.tabindex = 3;
+	    			this.$store.commit('setheader',this.tabbar[3])
 	    			break;
 	    		default:
 	    			this.tabindex = 0;
+	    			this.$store.commit('setheader',this.tabbar[0])
 	    			break;
 	    	}
 	    },

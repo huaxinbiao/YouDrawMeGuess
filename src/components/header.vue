@@ -1,20 +1,24 @@
 <template>
 	<header class="mui-bar mui-bar-nav">
          <a class="mui-icon mui-action-menu mui-icon-bars mui-pull-left" v-on:tap="tab"></a>
-         <span class="mui-btn-link mui-pull-right Hui-bar-right" v-if="getTitle.right == 1">创建房间</span>
+         <span class="mui-btn-link mui-pull-right Hui-bar-right" v-if="getTitle.right == 1" v-on:tap="createRoom()">创建房间</span>
          <h1 class="mui-title" v-if="getTitle.centre != 0">{{getTitle.title}}</h1>
     </header>
 </template>
 
 <script>
+import ajax from '@/assets/js/ajax';
 export default {
   	data(){
 	  	return {
 	  		
 	  	}
   	},
+  	mounted(){
+  		
+  	},
   	methods: {
-	    tab: function (){
+	    tab(){
 	         //侧滑容器父节点
 	        var offCanvasWrapper = mui('#offCanvasWrapper');
 	         //主界面‘显示侧滑菜单’按钮的点击事件
@@ -29,6 +33,9 @@ export default {
 	                });
 	            });
 	        }
+	    },
+	    createRoom(){
+	    	this.$store.commit('setcreateroom', true);
 	    }
 	},
     computed: {
