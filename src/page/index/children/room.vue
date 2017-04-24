@@ -5,7 +5,7 @@
                 <a href="javascript:;">快速开始</a>
             </div>
             <div class="Hui-roomcon">
-                <dl v-for="(item, index) in roomList">
+                <dl v-for="(item, index) in roomList" v-on:tap="goRoom(item._id, item.name)">
                 	<dt>
                 		<span><img src="../../../assets/images/default.jpg"></span>
                 		<span><img src="../../../assets/images/default.jpg"></span>
@@ -69,7 +69,8 @@ import ajax from '@/assets/js/ajax';
 			return {
 				name: '',
 				playersnumber: 4,
-				roomList: ''
+				roomList: '',
+				complete: false
 			}
 		},
 		mounted(){
@@ -99,15 +100,19 @@ import ajax from '@/assets/js/ajax';
 				if(this.name.length<2 || this.name.length>12){
 					return mui.toast('房间名字长度为2至12个字');
 				}
-				
+				if(this.complete){
+					return;
+				}
+				this.complete = true;
 			  	ajax(this, '/room/create', 'post', {
 					name: that.name,
 	                playersnumber: parseInt(that.playersnumber),
 				}, function(vm, res){
 				  	if(res.code == 200){
-				  		console.log(res)
+				  		that.name = '';
+				  		that.complete = false;
 				  		vm.$store.commit('setcreateroom', false);
-					  	vm.$router.push({path: '/draw', params: {
+					  	vm.$router.push({name: 'draw', params: {
 					  		room_id: res.data.id,
 					  		name: res.data.name
 					  	}});
@@ -118,6 +123,12 @@ import ajax from '@/assets/js/ajax';
 			},
 			cancelcreateRoom(){
 				this.$store.commit('setcreateroom', false);
+			},
+			goRoom(id, name){
+				this.$router.push({name: 'draw', params: {
+			  		room_id: id,
+			  		name: name
+			  	}});
 			}
 		},
 	    computed: {

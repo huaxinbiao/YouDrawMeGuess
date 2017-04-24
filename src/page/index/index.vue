@@ -19,16 +19,24 @@ import Hheader from '../../components/header.vue';
 import Hnav from '../../components/nav.vue';
 import Hleft from '../../components/left.vue';
 export default {
-  name: 'index',
-  data(){
-  	return {
+  	name: 'index',
+  	data(){
+  		return {
 		
-  	}
-  },
-  mounted(){
-  	mui.init();
-  },
-  components:{ Hheader, Hnav, Hleft }
+  		}
+  	},
+  	mounted(){
+  		mui.init();
+  	},
+	watch: {
+	    '$route' (to, from) {
+	    	//离开隐藏创建房间弹窗
+	    	if(from.name == 'room'){
+	    		this.$store.commit('setcreateroom', false);
+	    	}
+	    }
+  	},
+  	components:{ Hheader, Hnav, Hleft }
 }
 </script>
 

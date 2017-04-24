@@ -44,6 +44,7 @@ const router = new Router({
     },
     {
     		path: '/draw',
+    		name: 'draw',
         component: Draw
     },
     {

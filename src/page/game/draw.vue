@@ -56,7 +56,9 @@
 	          	dom: false, //dom更新状态
 	          	sendState: false, //输入状态
 	          	content: '', //发送的消息
-	          	userMsg: [] //储存用户消息
+	          	userMsg: [], //储存用户消息
+	          	roomId: null, //房间id
+	          	roomName: null //房间名字
 	      }  
 	    },
 	  	mounted(){
@@ -164,10 +166,21 @@
 		    	let  re = /<(?!(\/?img|br))[^>]+>/ig;//要保留其他标签修改这里
 			    val = val.replace(re,"");
 			    return val;
+		    },
+		    roomId(){
+		    	console.log(2)
 		    }
 	  	},
+	  	beforeRouteEnter (to, from, next) {
+	  		if(!to.params.room_id){
+	  			return next('/index')
+	  		}
+	  		this.roomId = to.params.room_id;
+	  		this.roomName = to.params.name;
+		    next();
+	  	},
 	    watch:{
-	　　　　 screenHeight:'updateMessage'//当值变化时触发
+	　　　　 screenHeight:'updateMessage',	//当值变化时触发
 	　　}
 	}
 	
