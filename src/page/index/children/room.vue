@@ -2,7 +2,7 @@
 	<div id="room" class="mui-content mui-scroll-wrapper">
 		<div class="mui-scroll">
             <div class="Hui-roombar">
-                <a href="javascript:;">快速开始</a>
+                <a href="javascript:;" v-on:tap="quickStart()">快速开始</a>
             </div>
             <div class="Hui-roomcon">
                 <dl v-for="(item, index) in roomList" v-on:tap="goRoom(item._id, item.name)">
@@ -67,10 +67,10 @@ import ajax from '@/assets/js/ajax';
 	export default {
 		data(){
 			return {
-				name: '',
-				playersnumber: 4,
-				roomList: '',
-				complete: false
+				name: '', //新建房间名字
+				playersnumber: 4, //新建房间人数
+				roomList: '', //房间列表
+				complete: false //防止多次提交
 			}
 		},
 		mounted(){
@@ -125,10 +125,30 @@ import ajax from '@/assets/js/ajax';
 				this.$store.commit('setcreateroom', false);
 			},
 			goRoom(id, name){
+				//console.log('进入房间')
 				this.$router.push({name: 'draw', params: {
 			  		room_id: id,
 			  		name: name
 			  	}});
+			},
+			quickStart(){
+				//快速进入房间
+				if(this.complete){
+					return;
+				}
+				this.complete = true;
+				ajax(this, '/room/quick', 'get', {}, function(vm, res){
+				  	if(res.code == 200){
+				  		that.complete = false;
+					  	//console.log('进入房间')
+						vm.$router.push({name: 'draw', params: {
+					  		room_id: res.id,
+					  		name: res.name
+					  	}});
+				  	}else{
+				  		mui.toast(res.msg);
+				  	}
+				})
 			}
 		},
 	    computed: {

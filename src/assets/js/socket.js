@@ -40,7 +40,11 @@ function Socket(vm){
 				console.log('发起重连',count);
 				socket.connect(global.IO);
 			  	if(count>=10){
-			  		console.log('重连失败')
+					var reconnection = document.getElementById('reconnection');
+					if(reconnection){
+						reconnection.parentNode.removeChild(reconnection);
+					}
+					mui.toast('重连失败')
 			  		clearInterval(timer);
 			  	}
 			};

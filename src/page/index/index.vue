@@ -31,7 +31,7 @@ export default {
 	watch: {
 	    '$route' (to, from) {
 	    	//离开隐藏创建房间弹窗
-	    	if(from.name == 'room'){
+	    	if(to.name == 'room'){
 	    		this.$store.commit('setcreateroom', false);
 	    	}
 	    }

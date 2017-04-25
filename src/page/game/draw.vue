@@ -2,7 +2,7 @@
 	<div id="gameRoom">
 		<header class="mui-bar mui-bar-nav">
 		    <a class="mui-icon mui-icon-arrowleft Hui-icon-left" v-on:tap="back()"></a>
-		    <h1 class="mui-title Hui-title"><p class="ellipsis">房间名字</p><i class="ellipsis">你画我猜</i></h1>
+		    <h1 class="mui-title Hui-title"><p class="ellipsis">{{roomDetails.name}}</p><i class="ellipsis">你画我猜</i></h1>
 		    <a class="Hui-icon-right mui-icon-extra mui-icon-extra-peoples Hui-icon"></a>
 		</header>
 		<nav class="mui-bar mui-bar-tab Hui-chat-bar" style="height:auto">
@@ -45,9 +45,10 @@
 </template>
 
 <script>
+import ajax from '@/assets/js/ajax';
 	export default{
 	    data(){
-	      return {
+	      	return {
 	      		bodyHeight: '', //body高度
 	          	screenHeight: '', //画布高
 	          	screenWidth: '', //屏幕宽、画布宽
@@ -58,8 +59,9 @@
 	          	content: '', //发送的消息
 	          	userMsg: [], //储存用户消息
 	          	roomId: null, //房间id
-	          	roomName: null //房间名字
-	      }  
+	          	roomName: null, //房间名字
+	          	roomDetails: '' //房间详细信息
+	      	}  
 	    },
 	  	mounted(){
 			var that = this;
@@ -167,17 +169,27 @@
 			    val = val.replace(re,"");
 			    return val;
 		    },
-		    roomId(){
-		    	console.log(2)
+		    enterRoom(res){
+		    	console.log(res);
 		    }
 	  	},
 	  	beforeRouteEnter (to, from, next) {
 	  		if(!to.params.room_id){
 	  			return next('/index')
-	  		}
-	  		this.roomId = to.params.room_id;
-	  		this.roomName = to.params.name;
-		    next();
+	  		};
+	  		next(function(vm){
+		  		vm.roomId = to.params.room_id;
+		  		vm.roomName = to.params.name;
+		  		//传入房间id,进入房间
+		  		vm.socket.emit('enterRoom', {room_id: vm.roomId}, function(res){
+		  			if(res.code != 200){
+		  				mui.toast(res.msg);
+		  			}else{
+		  				vm.roomDetails = res.data;
+		  				vm.enterRoom(res.data);
+		  			}
+		  		});
+	  		})
 	  	},
 	    watch:{
 	　　　　 screenHeight:'updateMessage',	//当值变化时触发
