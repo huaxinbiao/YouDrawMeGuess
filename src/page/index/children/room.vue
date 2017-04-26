@@ -108,9 +108,9 @@ import ajax from '@/assets/js/ajax';
 					name: that.name,
 	                playersnumber: parseInt(that.playersnumber),
 				}, function(vm, res){
+				  	that.complete = false;
 				  	if(res.code == 200){
 				  		that.name = '';
-				  		that.complete = false;
 				  		vm.$store.commit('setcreateroom', false);
 					  	vm.$router.push({name: 'draw', params: {
 					  		room_id: res.data.id,
@@ -133,17 +133,18 @@ import ajax from '@/assets/js/ajax';
 			},
 			quickStart(){
 				//快速进入房间
+				var that = this;
 				if(this.complete){
 					return;
 				}
 				this.complete = true;
 				ajax(this, '/room/quick', 'get', {}, function(vm, res){
+				  	that.complete = false;
 				  	if(res.code == 200){
-				  		that.complete = false;
 					  	//console.log('进入房间')
 						vm.$router.push({name: 'draw', params: {
-					  		room_id: res.id,
-					  		name: res.name
+					  		room_id: res.data._id,
+					  		name: res.data.name
 					  	}});
 				  	}else{
 				  		mui.toast(res.msg);

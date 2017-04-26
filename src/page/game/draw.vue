@@ -107,8 +107,6 @@ import ajax from '@/assets/js/ajax';
 			updateMessage() {
 			    this.$nextTick(function () {//当值变化dom更新完成
 	    			this.dom = true;
-					//第一次请求数据
-					this.socket.emit('getAllMessages');
 	    			if(this.messages.length>0){
 	    				for(let i=0; i<this.messages.length; i++){
 	    					this.canvasGo.drawCanvas(messages[i].parameter,messages[i].opt,messages[i].Start);
@@ -170,7 +168,8 @@ import ajax from '@/assets/js/ajax';
 			    return val;
 		    },
 		    enterRoom(res){
-		    	console.log(res);
+				//第一次请求数据
+				this.socket.emit('getAllMessages');
 		    }
 	  	},
 	  	beforeRouteEnter (to, from, next) {
