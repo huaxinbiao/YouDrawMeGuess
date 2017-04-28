@@ -30,6 +30,18 @@
 			</datalist>
 			<input type="range" name="points" min="1" max="10" />
 		</div>
+		<div id="online-list" v-bind:style="{height:screenHeight+56+'px'}">
+			<div>
+				<div><img src="../../assets/images/default.jpg"><span>已准备</span></div>
+				<div><img src="../../assets/images/default.jpg"><span>已准备</span></div>
+				<div><img src="../../assets/images/default.jpg"></div>
+				<div><img src="../../assets/images/default.jpg"></div>
+				<div><img src="../../assets/images/default.jpg"><span>已准备</span></div>
+				<div><img src="../../assets/images/default.jpg"></div>
+				<div><img src="../../assets/images/default.jpg"></div>
+			</div>
+			<a href="javascript:;">准备</a>
+		</div>
 		<div id="chat-scroll" class="mui-content Hui-chat-scroll" v-bind:style="{top:screenHeight+100+'px', height: bodyHeight-screenHeight-150+'px'}">
 			<div id="chat-list">
 				<div class="one-msg" v-bind:class="{ left: item.source == 2, right: item.source == 1 }" v-for="item in userMsg">
@@ -540,5 +552,62 @@ function operatCanvas(){
 			}
 		}
 	}
+}
+#online-list{
+    position: absolute;
+    top: 44px;
+    left: 0;
+    width: 100%;
+    background: #fff;
+    z-index: 100;
+    height: 50%;
+    >div{
+	    overflow-y: auto;
+	    overflow-x: hidden;
+	    position: absolute;
+	    top: 0;
+	    left: 0;
+	    height: 80%;
+	    width: 100%;
+	    box-sizing: border-box;
+	    >div{
+	    	width: 20%;
+	    	float: left;
+	    	padding: 8px;
+	    	position: relative;
+	    	img{
+	    		display: block;
+	    		width: 100%;
+	    		border: #f1f1f1 1px solid;
+	    	}
+	    	span{
+	    		position: absolute;
+	    		bottom: 10px;
+	    		right: 0;
+	    		display: block;
+	    		font-size: 12px;
+	    		line-height: 18px;
+	    		height: 18px;
+	    		overflow: hidden;
+	    		text-align: center;
+	    		color: #cd3d3d;
+	    		width: 100%;
+	    		text-align: center;
+	    	}
+	    }
+    }
+    >a{
+    	display: block;
+    	background: #cd3d3d;
+	    position: absolute;
+    	color: #fff;
+    	bottom: 5%;
+    	width: 30%;
+    	line-height: 32px;
+    	border-radius: 5px;
+    	left: 35%;
+    	text-align: center;
+    	font-size: 16px;
+    }
 }
 </style>

@@ -29,6 +29,11 @@ export default {
       }else{
       		this.transitionName = 'slide-fade';
       }
+      
+      //监听离开房间页面
+    	if(from.path == '/draw'){
+    		this.socket.emit('leaveRoom');
+    	}
     }
   }
 }
