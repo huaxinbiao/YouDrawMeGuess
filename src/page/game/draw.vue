@@ -32,15 +32,9 @@
 		</div>
 		<div id="online-list" v-bind:style="{height:screenHeight+56+'px'}">
 			<div>
-				<div><img src="../../assets/images/default.jpg"><span>已准备</span></div>
-				<div><img src="../../assets/images/default.jpg"><span>已准备</span></div>
-				<div><img src="../../assets/images/default.jpg"></div>
-				<div><img src="../../assets/images/default.jpg"></div>
-				<div><img src="../../assets/images/default.jpg"><span>已准备</span></div>
-				<div><img src="../../assets/images/default.jpg"></div>
-				<div><img src="../../assets/images/default.jpg"></div>
+				<div v-for="item in online"><img src="../../assets/images/default.jpg"><span v-if="item.ready">已准备</span></div>
 			</div>
-			<a href="javascript:;">准备</a>
+			<a href="javascript:;" v-on:tap="readygame">{{gameready?'取消准备':'准备'}}</a>
 		</div>
 		<div id="chat-scroll" class="mui-content Hui-chat-scroll" v-bind:style="{top:screenHeight+100+'px', height: bodyHeight-screenHeight-150+'px'}">
 			<div id="chat-list">
@@ -72,35 +66,15 @@ import ajax from '@/assets/js/ajax';
 	          	userMsg: [], //储存用户消息
 	          	roomId: null, //房间id
 	          	roomName: null, //房间名字
-	          	roomDetails: '' //房间详细信息
-	      	}  
+	          	roomDetails: '', //房间详细信息
+	          	online: [], //在线人数
+	          	gameready: false
+	      	}
 	    },
 	  	mounted(){
 			var that = this;
-	    	this.canvasGo = new operatCanvas();
-	    	this.bodyHeight =  document.body.clientHeight;
-			this.screenWidth = document.body.clientWidth;
-			this.screenHeight = this.screenWidth*(3/5);
-			//第一次请求,返回消息，别人画好的
-			this.socket.on('allMessages', function(messages){
-				for(let i=0; i<messages.length; i++){
-					that.canvasGo.drawCanvas(messages[i].parameter,messages[i].opt,messages[i].Start);
-				}
-	        });
-	        //接收消息
-	        this.socket.on('messageAdded', function(message){
-	            if(that.dom){
-	            	that.canvasGo.drawCanvas(message.parameter,message.opt,message.Start);
-	            }else{
-	            	that.messages.push(message);
-	            }
-	        });
-	        this.socket.on('userMessage', function(message){
-	            that.ChatList(message);
-	        });
 	        //页面大小改变
 	        window.onresize = function(){
-	    		that.bodyHeight =  document.body.clientHeight;
 	        	that.screenWidth = document.body.clientWidth;
 				that.screenHeight = that.screenWidth*(3/5);
 	        }
@@ -111,6 +85,7 @@ import ajax from '@/assets/js/ajax';
 	                that.sendMsg();
              	}
          	};
+         	this.ready();
 	  	},
 	  	methods:{
 	  		back(){
@@ -182,6 +157,53 @@ import ajax from '@/assets/js/ajax';
 		    enterRoom(res){
 				//第一次请求数据
 				this.socket.emit('getAllMessages');
+		    },
+		    ready(){
+				var that = this;
+				this.only = false;
+		    	this.canvasGo = new operatCanvas();
+		    	this.bodyHeight =  document.body.clientHeight;
+				this.screenWidth = document.body.clientWidth;
+				this.screenHeight = this.screenWidth*(3/5);
+				//第一次请求,返回消息，别人画好的
+	         	this.socket.off('allMessages');
+	         	this.socket.off('messageAdded');
+	         	this.socket.off('userMessage');
+	         	this.socket.off('onlineNum');
+	         	this.socket.off('startGame');
+				this.socket.on('allMessages', function(messages){
+					for(let i=0; i<messages.length; i++){
+						that.canvasGo.drawCanvas(messages[i].parameter,messages[i].opt,messages[i].Start);
+					}
+		        });
+		        //接收消息
+		        this.socket.on('messageAdded', function(message){
+		            if(that.dom){
+		            	that.canvasGo.drawCanvas(message.parameter,message.opt,message.Start);
+		            }else{
+		            	that.messages.push(message);
+		            }
+		        });
+		        this.socket.on('userMessage', function(message){
+		            that.ChatList(message);
+		        });
+	         	//用户上线列表
+	         	this.socket.on('onlineNum', function(message){
+	         		console.log(message)
+	         		that.online = message;
+	         	})
+	         	//开始游戏
+	         	this.socket.on('startGame', function(){
+	         		
+	         	})
+		    },
+		    readygame(){
+		    	var that = this;
+		    	this.gameready = this.gameready ? false : true;
+		    	this.socket.emit('readygame', {
+		    		room_id: this.roomId,
+		    		ready: this.gameready
+		    	})
 		    }
 	  	},
 	  	beforeRouteEnter (to, from, next) {
