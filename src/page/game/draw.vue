@@ -194,7 +194,7 @@ import ajax from '@/assets/js/ajax';
 	         	})
 	         	//开始游戏
 	         	this.socket.on('startGame', function(){
-	         		
+	         		mui.toast('游戏开始');
 	         	})
 		    },
 		    readygame(){
