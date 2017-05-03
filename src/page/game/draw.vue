@@ -30,7 +30,7 @@
 			</datalist>
 			<input type="range" name="points" min="1" max="10" />
 		</div>
-		<div id="online-list" v-bind:style="{height:screenHeight+56+'px'}">
+		<div id="online-list" v-bind:style="{height:screenHeight+56+'px'}" v-if="!ingame">
 			<div>
 				<div v-for="item in online"><img src="../../assets/images/default.jpg"><span v-if="item.ready">已准备</span></div>
 			</div>
@@ -68,7 +68,8 @@ import ajax from '@/assets/js/ajax';
 	          	roomName: null, //房间名字
 	          	roomDetails: '', //房间详细信息
 	          	online: [], //在线人数
-	          	gameready: false
+	          	gameready: false,
+	          	ingame: false  //游戏是否开始
 	      	}
 	    },
 	  	mounted(){
@@ -171,6 +172,8 @@ import ajax from '@/assets/js/ajax';
 	         	this.socket.off('userMessage');
 	         	this.socket.off('onlineNum');
 	         	this.socket.off('startGame');
+	         	this.socket.off('startDraw');
+	         	this.socket.off('endGame');
 				this.socket.on('allMessages', function(messages){
 					for(let i=0; i<messages.length; i++){
 						that.canvasGo.drawCanvas(messages[i].parameter,messages[i].opt,messages[i].Start);
@@ -195,6 +198,17 @@ import ajax from '@/assets/js/ajax';
 	         	//开始游戏
 	         	this.socket.on('startGame', function(){
 	         		mui.toast('游戏开始');
+	         		that.ingame = true;
+	         	})
+	         	//开始画画
+	         	this.socket.on('startDraw', function(message){
+	         		console.log(message)
+	         		mui.toast('该你画了');
+	         	})
+	         	//游戏结束
+	         	this.socket.on('endGame', function(){
+	         		mui.toast('游戏结束');
+	         		that.ingame = false;
 	         	})
 		    },
 		    readygame(){
@@ -215,11 +229,18 @@ import ajax from '@/assets/js/ajax';
 		  		vm.roomName = to.params.name;
 		  		//传入房间id,进入房间
 		  		vm.socket.emit('enterRoom', {room_id: vm.roomId}, function(res){
-		  			if(res.code != 200){
-		  				mui.toast(res.msg);
-		  			}else{
+		  			if(res.code == 200){
+		  				//游戏未开始
 		  				vm.roomDetails = res.data;
 		  				vm.enterRoom(res.data);
+		  			}else if(res.code == 201){
+		  				//游戏已经开始
+		  				vm.ingame = true;
+		  				vm.roomDetails = res.data;
+		  				vm.enterRoom(res.data);
+		  				mui.toast(res.msg);
+		  			}else{
+		  				mui.toast(res.msg);
 		  			}
 		  		});
 	  		})

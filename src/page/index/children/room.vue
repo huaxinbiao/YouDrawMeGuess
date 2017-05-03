@@ -37,6 +37,10 @@
 					<input type="text" v-model="name" placeholder="请输入房间名字" v-validate="'required|min:2|max:12'" data-vv-as="房间名字" name="name" required="required">
 				</div>
 				<div class="mui-input-row mui-radio mui-left">
+					<label>2 人游戏房间</label>
+					<input name="playersnumber" type="radio" value="2" v-model="playersnumber">
+				</div>
+				<div class="mui-input-row mui-radio mui-left">
 					<label>4 人游戏房间</label>
 					<input name="playersnumber" type="radio" value="4" v-model="playersnumber">
 				</div>
