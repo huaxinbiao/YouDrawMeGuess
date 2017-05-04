@@ -209,6 +209,7 @@ import ajax from '@/assets/js/ajax';
 	         	this.socket.on('endGame', function(){
 	         		mui.toast('游戏结束');
 	         		that.ingame = false;
+	         		that.gameready = false;
 	         	})
 		    },
 		    readygame(){
