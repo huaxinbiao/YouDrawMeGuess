@@ -2,7 +2,7 @@
 	<div id="gameRoom">
 		<header class="mui-bar mui-bar-nav">
 		    <a class="mui-icon mui-icon-arrowleft Hui-icon-left" v-on:tap="back()"></a>
-		    <h1 class="mui-title Hui-title"><p class="ellipsis">{{roomDetails.name}}</p><i class="ellipsis">你画我猜</i></h1>
+		    <h1 class="mui-title Hui-title"><p class="ellipsis">{{roomDetails.name}}</p><i class="ellipsis">你画我猜（{{roomDetails.gamepeople}}人房）</i></h1>
 		    <a class="Hui-icon-right mui-icon-extra mui-icon-extra-peoples Hui-icon"></a>
 		</header>
 		<nav class="mui-bar mui-bar-tab Hui-chat-bar" style="height:auto">
@@ -18,7 +18,7 @@
 			<div style="width:100%;height:200px;display:none"></div>
 		</nav>
 		<div class="gameRoom-canvas">
-			<div class="canvas-bar"><span>1号正在画，请先围观~{{screenHeight}}</span><span>剩余时间：<i>60</i></span></div>
+			<div class="canvas-bar"><span>{{countDown.number == gameP? '到你了，画起来。。。' : countDown.number + '号正在画您是' + gameP + '号，请先围观~'}}</span><span>剩余时间：<i>{{countDown.count}}</i></span></div>
 			<canvas id="gameCanvas" v-bind:width="screenWidth" v-bind:height="screenHeight" v-on:touchstart="touchStart($event)" v-on:touchmove="touchMove($event)" v-on:touchcancel="touchCancel($event)" v-on:touchend="touchEnd($event)" v-on:touchleave="touchEnd($event)"></canvas>
 		</div>
 		<div style="height: 32px;position: absolute;left: 0;width: 100%;" v-bind:style="{top:screenHeight+68+'px'}">
@@ -69,7 +69,13 @@ import ajax from '@/assets/js/ajax';
 	          	roomDetails: '', //房间详细信息
 	          	online: [], //在线人数
 	          	gameready: false,
-	          	ingame: false  //游戏是否开始
+	          	ingame: false,  //游戏是否开始
+	          	countDown: {
+	          		count: 90,
+	          		number: null
+	          	},  //倒计时
+	          	socketId: null,  //socket.id
+	          	gameP: null,  //自己是几号
 	      	}
 	    },
 	  	mounted(){
@@ -125,21 +131,33 @@ import ajax from '@/assets/js/ajax';
 		    	this.socket.emit('createMessage',message);
 		    },
 		    touchStart(event){
+		    	if(this.countDown.number != this.gameP){
+		    		return false;
+		    	}
 		    	let that = this;
 		    	this.canvasGo.handleStart(event,function(message){
 		    		that.send(message);
 		    	});
 		    },
 		    touchMove(event){
+		    	if(this.countDown.number != this.gameP){
+		    		return false;
+		    	}
 		    	let that = this;
 		    	this.canvasGo.handleMove(event,function(message){
 		    		that.send(message);
 		    	});
 		    },
 		    touchCancel(event){
+		    	if(this.countDown.number != this.gameP){
+		    		return false;
+		    	}
 		    	this.canvasGo.handleCancel(event);
 		    },
 		    touchEnd(event){
+		    	if(this.countDown.number != this.gameP){
+		    		return false;
+		    	}
 		    	let that = this;
 		    	this.canvasGo.handleEnd(event,function(message){
 		    		that.send(message);
@@ -174,6 +192,8 @@ import ajax from '@/assets/js/ajax';
 	         	this.socket.off('startGame');
 	         	this.socket.off('startDraw');
 	         	this.socket.off('endGame');
+	         	this.socket.off('nextBit');
+	         	this.socket.off('Vocable');
 				this.socket.on('allMessages', function(messages){
 					for(let i=0; i<messages.length; i++){
 						that.canvasGo.drawCanvas(messages[i].parameter,messages[i].opt,messages[i].Start);
@@ -196,20 +216,41 @@ import ajax from '@/assets/js/ajax';
 	         		that.online = message;
 	         	})
 	         	//开始游戏
-	         	this.socket.on('startGame', function(){
+	         	this.socket.on('startGame', function(message){
 	         		mui.toast('游戏开始');
 	         		that.ingame = true;
+	         		for(let key in message.gameNum){
+	         			if(message.gameNum[key].socketId == that.socketId){
+	         				that.gameP = parseInt(key)+1;
+	         			}
+	         		}
 	         	})
 	         	//开始画画
-	         	this.socket.on('startDraw', function(message){
-	         		console.log(message)
-	         		mui.toast('该你画了');
-	         	})
+         		//清除画布
+         		this.socket.on('nextBit', function(message){
+         			//开始下一位，清除画布
+					let gameCanvas = document.getElementById("gameCanvas");
+					let ctx = gameCanvas.getContext("2d");
+					ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+					if(message.no){
+						mui.toast(message.count + '号放弃了，开始下一位！');
+					}
+         		})
 	         	//游戏结束
 	         	this.socket.on('endGame', function(){
 	         		mui.toast('游戏结束');
 	         		that.ingame = false;
+	         		that.gameready = false;
 	         	})
+	         	//倒计时
+	         	this.socket.on('countDown', function(message){
+	         		that.countDown = message;
+	         	})
+	         	//选择词语
+	         	this.socket.on('Vocable', function(message){
+	         		console.log(message)
+	         	})
+	         	
 		    },
 		    readygame(){
 		    	var that = this;
@@ -231,13 +272,15 @@ import ajax from '@/assets/js/ajax';
 		  		vm.socket.emit('enterRoom', {room_id: vm.roomId}, function(res){
 		  			if(res.code == 200){
 		  				//游戏未开始
-		  				vm.roomDetails = res.data;
-		  				vm.enterRoom(res.data);
+		  				vm.roomDetails = res.data.room;
+		  				vm.enterRoom(res.data.room);
+		  				vm.socketId = res.data.id;
 		  			}else if(res.code == 201){
 		  				//游戏已经开始
 		  				vm.ingame = true;
-		  				vm.roomDetails = res.data;
-		  				vm.enterRoom(res.data);
+		  				vm.roomDetails = res.data.room;
+		  				vm.socketId = res.data.id;
+		  				vm.enterRoom(res.data.room);
 		  				mui.toast(res.msg);
 		  			}else{
 		  				mui.toast(res.msg);
