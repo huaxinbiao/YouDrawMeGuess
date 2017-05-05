@@ -1,2 +1,2 @@
-global.API = 'http://localhost:3000';
-global.IO = 'http://localhost:3000/';
+global.API = 'http://192.168.1.227:3000';
+global.IO = 'http://192.168.1.227:3000/';

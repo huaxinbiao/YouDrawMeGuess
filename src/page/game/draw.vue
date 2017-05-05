@@ -2,7 +2,7 @@
 	<div id="gameRoom">
 		<header class="mui-bar mui-bar-nav">
 		    <a class="mui-icon mui-icon-arrowleft Hui-icon-left" v-on:tap="back()"></a>
-		    <h1 class="mui-title Hui-title"><p class="ellipsis">{{roomDetails.name}}</p><i class="ellipsis">你画我猜（{{roomDetails.gamepeople}}人房）</i></h1>
+		    <h1 class="mui-title Hui-title"><p class="ellipsis">{{roomDetails.name}}</p><i class="ellipsis">{{myvocable?'词语：'+myvocable[0]:'你画我猜'}}（{{roomDetails.gamepeople}}人房）</i></h1>
 		    <a class="Hui-icon-right mui-icon-extra mui-icon-extra-peoples Hui-icon"></a>
 		</header>
 		<nav class="mui-bar mui-bar-tab Hui-chat-bar" style="height:auto">
@@ -18,7 +18,7 @@
 			<div style="width:100%;height:200px;display:none"></div>
 		</nav>
 		<div class="gameRoom-canvas">
-			<div class="canvas-bar"><span>{{countDown.number == gameP? '到你了，画起来。。。' : countDown.number + '号正在画您是' + gameP + '号，请先围观~'}}</span><span>剩余时间：<i>{{countDown.count}}</i></span></div>
+			<div class="canvas-bar"><span>{{countDown.number == gameP? '到你了，画起来。。。' : countDown.number + '号正在画，您是' + gameT + '~请先围观~'}}</span><span>剩余时间：<i>{{countDown.count}}</i></span></div>
 			<canvas id="gameCanvas" v-bind:width="screenWidth" v-bind:height="screenHeight" v-on:touchstart="touchStart($event)" v-on:touchmove="touchMove($event)" v-on:touchcancel="touchCancel($event)" v-on:touchend="touchEnd($event)" v-on:touchleave="touchEnd($event)"></canvas>
 		</div>
 		<div style="height: 32px;position: absolute;left: 0;width: 100%;" v-bind:style="{top:screenHeight+68+'px'}">
@@ -46,6 +46,12 @@
 					</div>
 				</div>
 			</div>
+	   	</div>
+	   	<div id="vocable" v-if="vocable && !myvocable">
+	   		<h3>选择词语{{myvocable}}</h3>
+	   		<div>
+	   			<span v-for="(item, index) in vocable" v-on:tap="optVocable(item)">{{item[0]}}</span>
+	   		</div>
 	   	</div>
 	</div>
 </template>
@@ -75,7 +81,10 @@ import ajax from '@/assets/js/ajax';
 	          		number: null
 	          	},  //倒计时
 	          	socketId: null,  //socket.id
-	          	gameP: null,  //自己是几号
+	          	gameP: null,  
+	          	gameT: '吃瓜群众',  //自己是几号
+	          	vocable: '', //词语
+	          	myvocable: null //选择的词语
 	      	}
 	    },
 	  	mounted(){
@@ -131,7 +140,7 @@ import ajax from '@/assets/js/ajax';
 		    	this.socket.emit('createMessage',message);
 		    },
 		    touchStart(event){
-		    	if(this.countDown.number != this.gameP){
+		    	if(this.countDown.number != this.gameP || !this.myvocable){
 		    		return false;
 		    	}
 		    	let that = this;
@@ -140,7 +149,7 @@ import ajax from '@/assets/js/ajax';
 		    	});
 		    },
 		    touchMove(event){
-		    	if(this.countDown.number != this.gameP){
+		    	if(this.countDown.number != this.gameP || !this.myvocable){
 		    		return false;
 		    	}
 		    	let that = this;
@@ -149,13 +158,13 @@ import ajax from '@/assets/js/ajax';
 		    	});
 		    },
 		    touchCancel(event){
-		    	if(this.countDown.number != this.gameP){
+		    	if(this.countDown.number != this.gameP || !this.myvocable){
 		    		return false;
 		    	}
 		    	this.canvasGo.handleCancel(event);
 		    },
 		    touchEnd(event){
-		    	if(this.countDown.number != this.gameP){
+		    	if(this.countDown.number != this.gameP || !this.myvocable){
 		    		return false;
 		    	}
 		    	let that = this;
@@ -177,6 +186,10 @@ import ajax from '@/assets/js/ajax';
 				//第一次请求数据
 				this.socket.emit('getAllMessages');
 		    },
+		    optVocable(vocable){
+		    	this.myvocable = vocable;
+         		this.socket.emit('setVocable', vocable);
+		    },
 		    ready(){
 				var that = this;
 				this.only = false;
@@ -184,7 +197,8 @@ import ajax from '@/assets/js/ajax';
 		    	this.bodyHeight =  document.body.clientHeight;
 				this.screenWidth = document.body.clientWidth;
 				this.screenHeight = this.screenWidth*(3/5);
-				//第一次请求,返回消息，别人画好的
+				
+				//清除监听
 	         	this.socket.off('allMessages');
 	         	this.socket.off('messageAdded');
 	         	this.socket.off('userMessage');
@@ -194,9 +208,17 @@ import ajax from '@/assets/js/ajax';
 	         	this.socket.off('endGame');
 	         	this.socket.off('nextBit');
 	         	this.socket.off('Vocable');
+	         	this.socket.off('vocablePrompt');
+	         	
+	         	//第一次请求,返回消息，别人画好的
 				this.socket.on('allMessages', function(messages){
-					for(let i=0; i<messages.length; i++){
-						that.canvasGo.drawCanvas(messages[i].parameter,messages[i].opt,messages[i].Start);
+					//选择词语离开后又进入获取词语
+					if(messages.vocable){
+						that.myvocable = messages.vocable;
+					};
+					
+					for(let i=0; i<messages.draw.length; i++){
+						that.canvasGo.drawCanvas(messages.draw[i].parameter,messages.draw[i].opt,messages.draw[i].Start);
 					}
 		        });
 		        //接收消息
@@ -212,7 +234,6 @@ import ajax from '@/assets/js/ajax';
 		        });
 	         	//用户上线列表
 	         	this.socket.on('onlineNum', function(message){
-	         		console.log(message)
 	         		that.online = message;
 	         	})
 	         	//开始游戏
@@ -220,8 +241,10 @@ import ajax from '@/assets/js/ajax';
 	         		mui.toast('游戏开始');
 	         		that.ingame = true;
 	         		for(let key in message.gameNum){
+	         			console.log(message.gameNum[key].socketId , that.socketId)
 	         			if(message.gameNum[key].socketId == that.socketId){
 	         				that.gameP = parseInt(key)+1;
+	         				that.gameT = that.gameP + '号'
 	         			}
 	         		}
 	         	})
@@ -241,16 +264,32 @@ import ajax from '@/assets/js/ajax';
 	         		mui.toast('游戏结束');
 	         		that.ingame = false;
 	         		that.gameready = false;
+         			//开始下一位，清除画布
+					let gameCanvas = document.getElementById("gameCanvas");
+					let ctx = gameCanvas.getContext("2d");
+					ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+					that.myvocable = null;
 	         	})
 	         	//倒计时
 	         	this.socket.on('countDown', function(message){
 	         		that.countDown = message;
+	         		if(that.countDown.number != that.gameP){
+			    		that.vocable = '';
+						that.myvocable = null;
+			    	}else if(that.countDown.count == 75 && that.countDown.number == that.gameP && !that.myvocable){
+			    		//20秒未选择自动选择第一个
+						that.myvocable = that.vocable[0];
+         				that.socket.emit('setVocable', that.vocable[0]);
+	         		}
 	         	})
 	         	//选择词语
 	         	this.socket.on('Vocable', function(message){
+	         		that.vocable = message.vocable;
+	         	})
+	         	//词语提示
+	         	this.socket.on('vocablePrompt', function(message){
 	         		console.log(message)
 	         	})
-	         	
 		    },
 		    readygame(){
 		    	var that = this;
@@ -281,7 +320,17 @@ import ajax from '@/assets/js/ajax';
 		  				vm.roomDetails = res.data.room;
 		  				vm.socketId = res.data.id;
 		  				vm.enterRoom(res.data.room);
-		  				mui.toast(res.msg);
+		  				let toast = true;
+		  				for(let key in res.data.gameNum){
+		         			if(res.data.gameNum[key].socketId == vm.socketId){
+		         				vm.gameP = parseInt(key)+1;
+		         				vm.gameT = vm.gameP + '号';
+		         				toast = false;
+		         			}
+		         		}
+		  				if(toast){
+		  					mui.toast(res.msg);
+		  				}
 		  			}else{
 		  				mui.toast(res.msg);
 		  			}
@@ -695,5 +744,39 @@ function operatCanvas(){
     	text-align: center;
     	font-size: 16px;
     }
+}
+#vocable{
+	position: fixed;
+	z-index: 999;
+	background: #fff;
+	top: 50%;
+	left: 10%;
+	width: 80%;
+	height: 180px;
+	border: #cd3d3d 1px solid;
+	border-radius: 5px;
+	margin-top: -90px;
+	>h3{
+		font-size: 16px;
+		text-align: center;
+		line-height: 70px;
+		color: #cd3d3d;
+	}
+	span{
+		display: block;
+		width: 44%;
+		float: left;
+		margin-left: 4%;
+		margin-bottom: 20px;
+		text-align: center;
+		line-height: 30px;
+		height: 30px;
+		overflow: hidden;
+		border: #F1F1F1 1px solid;
+		color: #cd3d3d;
+		&:hover{
+			border: #cd3d3d 1px solid;
+		}
+	}
 }
 </style>
