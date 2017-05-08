@@ -2,7 +2,7 @@
 	<div id="gameRoom">
 		<header class="mui-bar mui-bar-nav">
 		    <a class="mui-icon mui-icon-arrowleft Hui-icon-left" v-on:tap="back()"></a>
-		    <h1 class="mui-title Hui-title"><p class="ellipsis">{{roomDetails.name}}</p><i class="ellipsis">{{myvocable?'词语：'+myvocable[0]:'你画我猜'}}（{{roomDetails.gamepeople}}人房）</i></h1>
+		    <h1 class="mui-title Hui-title"><p class="ellipsis">{{roomDetails.name}}</p><i class="ellipsis">{{myvocable?'词语：'+myvocable[0]:''}}{{prompt?'提示：'+prompt:''}}{{myvocable || prompt ? '' : '你画我猜'}}（{{roomDetails.gamepeople}}人房）</i></h1>
 		    <a class="Hui-icon-right mui-icon-extra mui-icon-extra-peoples Hui-icon"></a>
 		</header>
 		<nav class="mui-bar mui-bar-tab Hui-chat-bar" style="height:auto">
@@ -22,13 +22,18 @@
 			<canvas id="gameCanvas" v-bind:width="screenWidth" v-bind:height="screenHeight" v-on:touchstart="touchStart($event)" v-on:touchmove="touchMove($event)" v-on:touchcancel="touchCancel($event)" v-on:touchend="touchEnd($event)" v-on:touchleave="touchEnd($event)"></canvas>
 		</div>
 		<div style="height: 32px;position: absolute;left: 0;width: 100%;" v-bind:style="{top:screenHeight+68+'px'}">
-			<input type="color" value="#333333" list="colors">
-			<datalist id="colors">
-				<option>#ffffff</option>
-				<option>#ff0000</option>
-				<option>#ff7700</option>
-			</datalist>
-			<input type="range" name="points" min="1" max="10" />
+			<div class="colorLump">
+				<span v-on:tap="modify('color', '#000')" style="background: #000;"></span>
+				<span v-on:tap="modify('color', '#cd3d3d')" style="background: #cd3d3d;"></span>
+				<span v-on:tap="modify('color', '#FFFF00')" style="background: #FFFF00;"></span>
+				<span v-on:tap="modify('color', '#7FFF00')" style="background: #7FFF00;"></span>
+			</div>
+			<div class="penSize">
+				<span v-on:tap="modify('size', '2')"></span>
+				<span v-on:tap="modify('size', '3')" style="width: 13px;height: 13px;"></span>
+				<span v-on:tap="modify('size', '5')" style="width: 16px;height: 16px;"></span>
+			</div>
+			<div class="reset" v-on:tap="modify('reset')"><img src="../../assets/images/reset.png"></div>
 		</div>
 		<div id="online-list" v-bind:style="{height:screenHeight+56+'px'}" v-if="!ingame">
 			<div>
@@ -47,7 +52,7 @@
 				</div>
 			</div>
 	   	</div>
-	   	<div id="vocable" v-if="vocable && !myvocable">
+	   	<div id="vocable" v-if="vocable && !myvocable && ingame">
 	   		<h3>选择词语{{myvocable}}</h3>
 	   		<div>
 	   			<span v-for="(item, index) in vocable" v-on:tap="optVocable(item)">{{item[0]}}</span>
@@ -84,7 +89,8 @@ import ajax from '@/assets/js/ajax';
 	          	gameP: null,  
 	          	gameT: '吃瓜群众',  //自己是几号
 	          	vocable: '', //词语
-	          	myvocable: null //选择的词语
+	          	myvocable: null, //选择的词语
+	          	prompt: null //提示
 	      	}
 	    },
 	  	mounted(){
@@ -190,6 +196,28 @@ import ajax from '@/assets/js/ajax';
 		    	this.myvocable = vocable;
          		this.socket.emit('setVocable', vocable);
 		    },
+		    modify(type, i){
+		    	if(this.countDown.number != this.gameP || !this.myvocable){
+		    		return false;
+		    	}
+		    	switch (type){
+		    		case 'color':
+		    			this.canvasGo.modify('color', i);
+		    			break;
+		    		case 'size':
+		    			this.canvasGo.modify('lineWidth', i);
+		    			break;
+		    		case 'reset':
+		    			//开始下一位，清除画布
+						let gameCanvas = document.getElementById("gameCanvas");
+						let ctx = gameCanvas.getContext("2d");
+						this.socket.emit('resetCanvas')
+						ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+		    			break;
+		    		default:
+		    			break;
+		    	}
+		    },
 		    ready(){
 				var that = this;
 				this.only = false;
@@ -209,6 +237,7 @@ import ajax from '@/assets/js/ajax';
 	         	this.socket.off('nextBit');
 	         	this.socket.off('Vocable');
 	         	this.socket.off('vocablePrompt');
+	         	this.socket.off('resetCanvas');
 	         	
 	         	//第一次请求,返回消息，别人画好的
 				this.socket.on('allMessages', function(messages){
@@ -241,7 +270,6 @@ import ajax from '@/assets/js/ajax';
 	         		mui.toast('游戏开始');
 	         		that.ingame = true;
 	         		for(let key in message.gameNum){
-	         			console.log(message.gameNum[key].socketId , that.socketId)
 	         			if(message.gameNum[key].socketId == that.socketId){
 	         				that.gameP = parseInt(key)+1;
 	         				that.gameT = that.gameP + '号'
@@ -269,6 +297,7 @@ import ajax from '@/assets/js/ajax';
 					let ctx = gameCanvas.getContext("2d");
 					ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 					that.myvocable = null;
+		    		that.prompt = null;
 	         	})
 	         	//倒计时
 	         	this.socket.on('countDown', function(message){
@@ -276,7 +305,10 @@ import ajax from '@/assets/js/ajax';
 	         		if(that.countDown.number != that.gameP){
 			    		that.vocable = '';
 						that.myvocable = null;
-			    	}else if(that.countDown.count == 75 && that.countDown.number == that.gameP && !that.myvocable){
+			    	}else{
+			    		that.prompt = null;
+			    	};
+			    	if(that.countDown.count == 75 && that.countDown.number == that.gameP && !that.myvocable){
 			    		//20秒未选择自动选择第一个
 						that.myvocable = that.vocable[0];
          				that.socket.emit('setVocable', that.vocable[0]);
@@ -288,7 +320,13 @@ import ajax from '@/assets/js/ajax';
 	         	})
 	         	//词语提示
 	         	this.socket.on('vocablePrompt', function(message){
-	         		console.log(message)
+	         		that.prompt = message.prompt;
+	         	})
+	         	//清除画布
+	         	this.socket.on('resetCanvas', function(){
+	         		let gameCanvas = document.getElementById("gameCanvas");
+					let ctx = gameCanvas.getContext("2d");
+					ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 	         	})
 		    },
 		    readygame(){
@@ -349,11 +387,15 @@ function operatCanvas(){
 	var touchAggregate = new Array();
 	var that = this;
 	var _default = {
-		color: '#333', //画笔颜色
+		color: '#000', //画笔颜色
 		lineWidth: 3,  //画笔大小
 		lineCap: 'round', //绘制圆形的结束线帽 ,可选值:square
 		lineJoin: 'round' //当两条线条交汇时，创建圆形边角
 	};
+	//改变默认值
+	this.modify = function(type, i){
+		_default[type] = i;
+	}
 	var ongoingTouchIndexById = function(idToFind){
 		for (let i=0; i<touchAggregate.length; i++) {
 	        let id = touchAggregate[i].identifier;
@@ -777,6 +819,41 @@ function operatCanvas(){
 		&:hover{
 			border: #cd3d3d 1px solid;
 		}
+	}
+}
+.colorLump{
+	display: inline-block;
+	margin-left: 15px;
+	>span{
+		display: inline-block;
+		width: 24px;
+		height: 24px;
+		border-radius: 3px;
+		margin-right: 5px;
+	}
+}
+.penSize{
+	display: inline-block;
+	margin-left: 35px;
+    vertical-align: top;
+    margin-top: 3px;
+	>span{
+		display: inline-block;
+		width: 10px;
+		height: 10px;
+		background: #666;
+		border-radius: 50%;
+		margin-right: 8px;
+		vertical-align: middle;
+	}
+}
+.reset{
+	display: inline-block;
+	float: right;
+	width: 20px;
+	margin: 6px 12px 6px 6px;
+	img{
+		width: 100%;
 	}
 }
 </style>
