@@ -52,7 +52,7 @@ import ajax from '@/assets/js/ajax';
 					}, function(vm, res){
 					  	if(res.code == 200){
 					  		mui.toast('注册成功');
-					  		localStorage.setItem('user', JSON.stringify(res.data));
+	    					that.$store.commit('setuser', res.data);
 					  		that.socket.connect(global.IO);
 					  		vm.$router.push('/index');
 					  	}else{

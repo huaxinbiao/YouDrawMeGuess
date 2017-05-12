@@ -1,10 +1,12 @@
+import {mergeJsonObject} from '../../assets/js/function.js';
 
 const state = {
 	header: {
 		title: ''
 	},
 	initiative: 0, //是否主动断开连接
-	createroom: false //创建房间
+	createroom: false, //
+	user: JSON.parse(localStorage.getItem('user')) //用户信息
 };
 const getters = {
 	getheader: state => {
@@ -14,7 +16,10 @@ const getters = {
 		return state.initiative
 	},
 	getcreateroom: state => {
-		return state.initiative
+		return state.createroom
+	},
+	getuser: state => {
+		return state.user
 	}
 };
 const mutations = {
@@ -25,7 +30,11 @@ const mutations = {
 		state.initiative = i;
 	},
 	setcreateroom (state, i) {
-		state.initiative = i;
+		state.createroom = i;
+	},
+	setuser (state, option) {
+		state.user =  mergeJsonObject(state.user, option);
+  		localStorage.setItem('user', JSON.stringify(state.user));
 	}
 };
 

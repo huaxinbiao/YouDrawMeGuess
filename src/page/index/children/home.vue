@@ -2,10 +2,10 @@
 	<div id="offCanvasContentScroll" class="mui-content mui-scroll-wrapper">
 		<div class="mui-scroll">
 	        <div class="Hui-indexbar">
-	            <div><img src="../../../assets/images/default.jpg"></div>
+	            <div><img :src="user && user.head ? user.head : head"></div>
 	            <div>
-	                <h2>袖手旁观</h2>
-	                <p>我就试试介绍能有多长。。。</p>
+	                <h2>{{user?user.nick:'袖手旁观'}}</h2>
+	                <p>昵称是随机产生的。。。</p>
 	                <span>积分：1000</span>
 	            </div>
 	        </div>
@@ -16,26 +16,29 @@
 	                    <h3>你画我猜</h3>
 	                    <span>涂鸦猜谜才艺展示</span>
 	                </div>
-	                <div><router-link to="/draw">开始</router-link></div>
+	                <div><a href="javascript:;" v-on:tap="quickStart()">开始</a></div>
 	            </div>
-	            <div>
+	            <!--<div>
 	                <div><img src="../../../assets/images/icon1.png"></div>
 	                <div>
 	                    <h3>你画我猜</h3>
 	                    <span>涂鸦猜谜才艺展示</span>
 	                </div>
 	                <div><a href="javascript:;" v-on:tap="disconnect">断开连接</a></div>
-	            </div>
+	            </div>-->
 	        </div>
 	    </div>
 	</div>
 </template>
 
 <script>
+import ajax from '@/assets/js/ajax';
 	export default {
 		data(){
 			return {
-				
+				user: this.$store.getters.getuser, //获取用户信息
+				head: require('../../../assets/images/default.jpg'),
+				complete: false
 			}
 		},
 		mounted(){
@@ -49,8 +52,27 @@
 	   	},
 		methods:{
 			disconnect(){
-				console.log('data')
 				this.socket.disconnect();
+			},
+			quickStart(){
+				//快速进入房间
+				var that = this;
+				if(this.complete){
+					return;
+				}
+				this.complete = true;
+				ajax(this, '/room/quick', 'get', {}, function(vm, res){
+				  	that.complete = false;
+				  	if(res.code == 200){
+					  	//console.log('进入房间')
+						vm.$router.push({name: 'draw', params: {
+					  		room_id: res.data._id,
+					  		name: res.data.name
+					  	}});
+				  	}else{
+				  		mui.toast(res.msg);
+				  	}
+				})
 			}
 		}
 	}

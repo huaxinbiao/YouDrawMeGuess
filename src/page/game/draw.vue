@@ -5,10 +5,10 @@
 		    <h1 class="mui-title Hui-title"><p class="ellipsis">{{roomDetails.name}}</p><i class="ellipsis">{{myvocable?'词语：'+myvocable[0]:''}}{{prompt?'提示：'+prompt:''}}{{myvocable || prompt ? '' : '你画我猜'}}（{{roomDetails.gamepeople}}人房）</i></h1>
 		    <a class="Hui-icon-right mui-icon-extra mui-icon-extra-peoples Hui-icon"></a>
 		</header>
-		<nav class="mui-bar mui-bar-tab Hui-chat-bar" style="height:auto">
+		<nav class="mui-bar mui-bar-tab Hui-chat-bar" style="height:auto" v-bind:class="{absolute: isIOS}">
 			<div class="sentNews">
 				<a href="javascript:;"><i class="mui-icon mui-icon-mic"></i></a>
-				<div contenteditable="true" id="contenteditable" v-on:input="oninput($event)" v-bind:class="{cur: sendState}"></div>
+				<div contenteditable="true" id="contenteditable" v-on:focus="focus($event)" v-on:input="oninput($event)" v-bind:class="{cur: sendState}" style="-webkit-user-select: auto;-webkit-user-modify: read-write-plaintext-only"></div>
 				<a href="javascript:;"><i class="Hui-icon Hui-icon-face"></i></a>
 				<a href="javascript:;">
 					<i v-if="!sendState" class="mui-icon mui-icon-plus"></i>
@@ -43,11 +43,11 @@
 		</div>
 		<div id="chat-scroll" class="mui-content Hui-chat-scroll" v-bind:style="{top:screenHeight+100+'px', height: bodyHeight-screenHeight-150+'px'}">
 			<div id="chat-list">
-				<div class="one-msg" v-bind:class="{ left: item.source == 2, right: item.source == 1 }" v-for="item in userMsg">
-					<div class="head-img"><img src="../../assets/images/default.jpg"></div>
+				<div class="one-msg" v-bind:class="{ left: item.id != user.id, right: item.id == user.id }" v-for="item in userMsg">
+					<div class="head-img"><img :src="item.user && item.user.head ? item.user.head : head"></div>
 					<div class="head-msg">
-						<span>昵称</span>
-						<p>{{item.content}}</p>
+						<span v-if="item.id != user.id">{{item.nick}}</span>
+						<p  v-html="item.content"></p>
 					</div>
 				</div>
 			</div>
@@ -90,7 +90,12 @@ import ajax from '@/assets/js/ajax';
 	          	gameT: '吃瓜群众',  //自己是几号
 	          	vocable: '', //词语
 	          	myvocable: null, //选择的词语
-	          	prompt: null //提示
+	          	prompt: null, //提示
+	          	contenteditable: null,
+	          	isIOS: false, //是否为ios
+	          	chatScroll: null,
+				user: this.$store.getters.getuser, //获取用户信息
+				head: require('../../assets/images/default.jpg') //默认头像
 	      	}
 	    },
 	  	mounted(){
@@ -101,13 +106,21 @@ import ajax from '@/assets/js/ajax';
 				that.screenHeight = that.screenWidth*(3/5);
 	        }
 	        //回车发送
-	        document.onkeydown=function(event){
+	        /*document.onkeydown=function(event){
              	var e = event || window.event || arguments.callee.caller.arguments[0];         
               	if(e && e.keyCode==13){ // enter 键
 	                that.sendMsg();
              	}
-         	};
+         	};*/
+      		this.contenteditable = document.getElementById("contenteditable");
+    		this.contenteditable.innerHTML = '';
          	this.ready();
+         	
+     	    var u = navigator.userAgent;
+		    var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1; //android终端
+		    this.isIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+		    
+		    this.chatScroll = document.getElementById("chat-scroll");
 	  	},
 	  	methods:{
 	  		back(){
@@ -123,19 +136,32 @@ import ajax from '@/assets/js/ajax';
 	    			}
 			    })
 		    },
+		    Scroll(){
+		    	this.$nextTick(function () {//当值变化dom更新完成
+					this.chatScroll.scrollTop =  this.chatScroll.scrollHeight + this.chatScroll.offsetHeight;
+			    })
+		    },
 		    sendMsg(){
 		    	let that = this;
+		    	if(!this.content){
+		    		return false;
+		    	}
 		    	//发送聊天消息
 		    	let content = {
+		    		id: this.user.id,
 		    		content: this.content,
-		    		source: 1 //自己发的
+		    		nick: this.user.nick,
+		    		head: this.user.head
 		    	}
-		    	this.socket.emit('chatMessage', content, function(){
-		    		that.content = '';
-		    		let contenteditable = document.getElementById("contenteditable")
-		    		contenteditable.innerHTML = '';
-		    		that.sendState = false;
-		    		that.userMsg.push(content);
+		    	this.socket.emit('chatMessage', content, function(z){
+		    		if(z){
+			    		that.content = '';
+			    		that.contenteditable.innerHTML = '';
+			    		that.sendState = false;
+			    		that.userMsg.push(content);
+		    		}else{
+		    			mui.toast('发送失败')
+		    		}
 		    	});
 		    },
 		    ChatList(message){
@@ -178,9 +204,18 @@ import ajax from '@/assets/js/ajax';
 		    		that.send(message);
 		    	});
 		    },
+		    focus(e){
+		    	var interval = setInterval(function() {
+				    document.body.scrollTop = document.body.scrollHeight
+				}, 520)
+		    },
 		    oninput(e){
-		    	this.content = this.delhtml(e.target.innerHTML);
-		    	!!this.content ? this.sendState = true : this.sendState = false;
+		    	if(e.target.innerText){
+			    	this.content = this.delhtml(e.target.innerHTML);
+			    	!!this.content ? this.sendState = true : this.sendState = false;
+		    	}else{
+		    		this.sendState = false;
+		    	}
 		    },
 		    delhtml(val){
 		    	//删除除img外的所有html标签
@@ -225,7 +260,7 @@ import ajax from '@/assets/js/ajax';
 		    	this.bodyHeight =  document.body.clientHeight;
 				this.screenWidth = document.body.clientWidth;
 				this.screenHeight = this.screenWidth*(3/5);
-				
+			    
 				//清除监听
 	         	this.socket.off('allMessages');
 	         	this.socket.off('messageAdded');
@@ -249,6 +284,9 @@ import ajax from '@/assets/js/ajax';
 					for(let i=0; i<messages.draw.length; i++){
 						that.canvasGo.drawCanvas(messages.draw[i].parameter,messages.draw[i].opt,messages.draw[i].Start);
 					}
+					
+					//返回的聊天消息记录
+					that.userMsg = messages.chatMessage;
 		        });
 		        //接收消息
 		        this.socket.on('messageAdded', function(message){
@@ -377,6 +415,7 @@ import ajax from '@/assets/js/ajax';
 	  	},
 	    watch:{
 	　　　　 screenHeight:'updateMessage',	//当值变化时触发
+			userMsg: 'Scroll'
 	　　}
 	}
 	
@@ -520,6 +559,9 @@ function operatCanvas(){
     }
 }
 #app{
+	.mui-bar{
+		position: absolute;
+	}
 	.mui-bar.mui-bar-nav{
 	    box-shadow: none;
 	    .Hui-icon-left{
@@ -557,6 +599,7 @@ function operatCanvas(){
 	    }
 	}
 	.Hui-chat-bar{
+		position: fixed;
 	    background: #fffcfc;
 	    border: none;
 	    box-shadow: none;
@@ -570,6 +613,9 @@ function operatCanvas(){
 	        background: url(../../assets/images/icon2.png) no-repeat center;
 	        background-size: 100%;
 	    }
+	}
+	.absolute{
+		position: absolute !important;
 	}
 }
 .sentNews{
@@ -643,7 +689,7 @@ function operatCanvas(){
     background: #F5F5F5;
 }
 .Hui-chat-scroll{
-    position: fixed;
+    position: absolute !important;
     top: 400px;
     bottom: 61px;
     padding: 0 !important;
@@ -671,7 +717,7 @@ function operatCanvas(){
 			span{
 				display: block;
 				font-size: 12px;
-				line-height: 12px;
+				line-height: 14px;
 				margin-bottom: 5px;
 				color: #666;
 			}
