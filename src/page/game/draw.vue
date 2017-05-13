@@ -358,7 +358,9 @@ import ajax from '@/assets/js/ajax';
 	         	})
 	         	//词语提示
 	         	this.socket.on('vocablePrompt', function(message){
-	         		that.prompt = message.prompt;
+	         		if(that.countDown.number != that.gameP){
+	         			that.prompt = message.prompt;
+	         		}
 	         	})
 	         	//清除画布
 	         	this.socket.on('resetCanvas', function(){
