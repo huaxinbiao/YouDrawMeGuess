@@ -9,13 +9,23 @@
 			<div class="sentNews">
 				<a href="javascript:;"><i class="mui-icon mui-icon-mic"></i></a>
 				<div contenteditable="true" id="contenteditable" v-on:focus="focus($event)" v-on:input="oninput($event)" v-bind:class="{cur: sendState}" style="-webkit-user-select: auto;-webkit-user-modify: read-write-plaintext-only"></div>
-				<a href="javascript:;"><i class="Hui-icon Hui-icon-face"></i></a>
+				<a href="javascript:;" v-on:tap="expression?expression=false:expression=true"><i class="Hui-icon Hui-icon-face"></i></a>
 				<a href="javascript:;">
 					<i v-if="!sendState" class="mui-icon mui-icon-plus"></i>
 					<span v-else id="sendMsg" v-on:tap="sendMsg">发送</span>
 				</a>
 			</div>
-			<div style="width:100%;height:200px;display:none"></div>
+			<div class="expression" v-show="expression">
+				 <div class="swiper-container">
+			        <div class="swiper-wrapper">
+			            <div class="swiper-slide" v-for="i in 2">
+			            	<img v-on:tap="sendBiao('../../../static/img/'+biaoqing[i-1][0]+'/'+n+biaoqing[i-1][1], i)" :src="'../../../static/img/'+biaoqing[i-1][0]+'/'+n+biaoqing[i-1][1]" v-for="n in biaoqingw[i-1]">
+			            </div>
+			        </div>
+			        <!-- Add Pagination -->
+			        <div class="swiper-pagination"></div>
+			    </div>
+			</div>
 		</nav>
 		<div class="gameRoom-canvas">
 			<div class="canvas-bar"><span>{{countDown.number == gameP? '到你了，画起来。。。' : countDown.number + '号正在画，您是' + gameT + '~请先围观~'}}</span><span>剩余时间：<i>{{countDown.count}}</i></span></div>
@@ -41,7 +51,7 @@
 			</div>
 			<a href="javascript:;" v-on:tap="readygame">{{gameready?'取消准备':'准备'}}</a>
 		</div>
-		<div id="chat-scroll" class="mui-content Hui-chat-scroll" v-bind:style="{top:screenHeight+100+'px', height: bodyHeight-screenHeight-150+'px'}">
+		<div id="chat-scroll" class="mui-content Hui-chat-scroll" v-bind:style="{top:screenHeight+100+'px', height: bodyHeight-screenHeight-150+'px'}" v-on:tap="expression?expression=false:''">
 			<div id="chat-list">
 				<div class="one-msg" v-bind:class="{ left: item.id != user.id, right: item.id == user.id }" v-for="item in userMsg">
 					<div class="head-img"><img :src="item.user && item.user.head ? item.user.head : head"></div>
@@ -63,6 +73,7 @@
 
 <script>
 import ajax from '@/assets/js/ajax';
+import swiper from '../../../static/swiper/swiper-3.4.2.min.js';
 	export default{
 	    data(){
 	      	return {
@@ -95,7 +106,10 @@ import ajax from '@/assets/js/ajax';
 	          	isIOS: false, //是否为ios
 	          	chatScroll: null,
 				user: this.$store.getters.getuser, //获取用户信息
-				head: require('../../assets/images/default.jpg') //默认头像
+				head: require('../../assets/images/default.jpg'), //默认头像
+				biaoqing: [['tieba', '.jpg'], ['acfun', '.png']], //表情路径
+				biaoqingw: [50, 54], //表情文件
+				expression: false //表情显示
 	      	}
 	    },
 	  	mounted(){
@@ -134,11 +148,20 @@ import ajax from '@/assets/js/ajax';
 	    					this.canvasGo.drawCanvas(messages[i].parameter,messages[i].opt,messages[i].Start);
 	    				}
 	    			}
+	    			
 			    })
 		    },
 		    Scroll(){
 		    	this.$nextTick(function () {//当值变化dom更新完成
 					this.chatScroll.scrollTop =  this.chatScroll.scrollHeight + this.chatScroll.offsetHeight;
+			    })
+		    },
+		    expressionBock(){
+			    this.$nextTick(function () {//当值变化dom更新完成
+			    	var swiper = new Swiper('.swiper-container', {
+				        pagination: '.swiper-pagination',
+				        paginationClickable: true
+				    });
 			    })
 		    },
 		    sendMsg(){
@@ -163,6 +186,29 @@ import ajax from '@/assets/js/ajax';
 		    			mui.toast('发送失败')
 		    		}
 		    	});
+		    },
+		    sendBiao(src, i){
+		    	var that = this;
+		    	if(i==1){
+		    		this.content+='<img src="'+src+'">';
+		    		this.contenteditable.innerHTML = this.content;
+		    		this.sendState = true;
+		    	}else{
+			    	let content = {
+			    		id: this.user.id,
+			    		content: '<img src="'+src+'">',
+			    		nick: this.user.nick,
+			    		head: this.user.head
+			    	}
+			    	this.socket.emit('chatMessage', content, function(z){
+			    		that.expression = false;
+			    		if(z){
+				    		that.userMsg.push(content);
+			    		}else{
+			    			mui.toast('发送失败')
+			    		}
+			    	});
+		    	}
 		    },
 		    ChatList(message){
 		    	this.userMsg.push(message);
@@ -205,6 +251,7 @@ import ajax from '@/assets/js/ajax';
 		    	});
 		    },
 		    focus(e){
+			    this.expression = false;
 		    	var interval = setInterval(function() {
 				    document.body.scrollTop = document.body.scrollHeight
 				}, 520)
@@ -417,7 +464,8 @@ import ajax from '@/assets/js/ajax';
 	  	},
 	    watch:{
 	　　　　 screenHeight:'updateMessage',	//当值变化时触发
-			userMsg: 'Scroll'
+			userMsg: 'Scroll',
+			expression: 'expressionBock'
 	　　}
 	}
 	
@@ -533,6 +581,7 @@ function operatCanvas(){
 </script>
 
 <style lang="less" scoped>
+@import "../../../static/swiper/swiper-3.4.2.min.css";
 @bg-default:#cd3d3d;
 @color-default:#cd3d3d;
 @text-color:#f67575;
@@ -902,6 +951,32 @@ function operatCanvas(){
 	margin: 6px 12px 6px 6px;
 	img{
 		width: 100%;
+	}
+}
+.expression{
+	background: #fff;
+	width: 100%;
+	height: 200px;
+	overflow-x: hidden;
+	overflow-y: auto;
+	.swiper-container {
+	    width: 100%;
+	    height: 100%;
+	    .swiper-slide{
+	    	overflow-x: hidden;
+	    	overflow-y: auto;
+	    	img{
+	    		display: block;
+	    		margin: 10px 0 0 6px;
+	    		float: left;
+	    	}
+	    }
+	    .swiper-slide:last-child{
+	    	img{
+	    		width: 17%;
+	    		margin: 15px 0 0 2.5%;
+	    	}
+	    }
 	}
 }
 </style>
