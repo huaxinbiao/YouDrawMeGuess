@@ -2,9 +2,11 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Index from '@/page/index/index'
 import Home from '@/page/index/children/home'
+import Room from '@/page/index/children/room'
+import News from '@/page/index/children/news'
+import Friends from '@/page/index/children/friends'
 import Draw from '@/page/game/draw'
 import RoomSet from '@/page/game/roomset'
-import Room from '@/page/index/children/room'
 import Login from '@/page/login/index'
 import Signin from '@/page/login/signin'
 import Register from '@/page/login/register'
@@ -40,6 +42,18 @@ const router = new Router({
 	          path: 'room',
 	          name: 'room',
 	          component: Room
+	        },
+	        {
+	          // 消息
+	          path: 'news',
+	          name: 'news',
+	          component: News
+	        },
+	        {
+	          // 朋友圈
+	          path: 'friends',
+	          name: 'friends',
+	          component: Friends
 	        }
 	      ]
     },

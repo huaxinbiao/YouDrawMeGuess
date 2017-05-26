@@ -82,7 +82,7 @@ export default{
   			}
   		},
   		ready(){
-  			console.log(this.roomDetails)
+  			//console.log(this.roomDetails)
   		}
   	},
   	beforeRouteEnter (to, from, next) {

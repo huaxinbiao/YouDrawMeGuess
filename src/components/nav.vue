@@ -27,12 +27,12 @@
 	                {
 	                	icon:'mui-icon-chatbubble',
 	                	title:'消息',
-	                	url: '/index/room'
+	                	url: '/index/news'
                 	},
 	                {
 	                	icon:'mui-icon-navigate',
 	                	title:'发现',
-	                	url: '/draw'
+	                	url: '/index/friends'
                 	}
 	            ],
 	            tabindex: 0
@@ -52,7 +52,7 @@
 	    			this.tabindex = 2;
 	    			this.$store.commit('setheader',this.tabbar[2])
 	    			break;
-	    		case 'find':
+	    		case 'friends':
 	    			this.tabindex = 3;
 	    			this.$store.commit('setheader',this.tabbar[3])
 	    			break;
