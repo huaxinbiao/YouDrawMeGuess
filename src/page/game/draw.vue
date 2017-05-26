@@ -3,7 +3,7 @@
 		<header class="mui-bar mui-bar-nav">
 		    <a class="mui-icon mui-icon-arrowleft Hui-icon-left" v-on:tap="back()"></a>
 		    <h1 class="mui-title Hui-title"><p class="ellipsis">{{roomDetails.name}}</p><i class="ellipsis">{{myvocable?'词语：'+myvocable[0]:''}}{{prompt?'提示：'+prompt:''}}{{myvocable || prompt ? '' : '你画我猜'}}（{{roomDetails.gamepeople}}人房）</i></h1>
-		    <a class="Hui-icon-right mui-icon-extra mui-icon-extra-peoples Hui-icon"></a>
+		    <router-link :to="{ name: 'RoomSet', params: { roomId: roomId, roomName: roomName, roomDetails:roomDetails }}" class="Hui-icon-right mui-icon-extra mui-icon-extra-peoples Hui-icon"></router-link>
 		</header>
 		<nav class="mui-bar mui-bar-tab Hui-chat-bar" style="height:auto" v-bind:class="{absolute: isIOS}">
 			<div class="sentNews">
@@ -176,6 +176,7 @@ import swiper from '../../../static/swiper/swiper-3.4.2.min.js';
 		    		nick: this.user.nick,
 		    		head: this.user.head
 		    	}
+		    	
 		    	this.socket.emit('chatMessage', content, function(z){
 		    		if(z){
 			    		that.content = '';
@@ -387,13 +388,15 @@ import swiper from '../../../static/swiper/swiper-3.4.2.min.js';
 	         	//倒计时
 	         	this.socket.on('countDown', function(message){
 	         		that.countDown = message;
-	         		if(that.countDown.number != that.gameP){
+		    		
+	         		if(that.countDown.number != that.gameP && !!that.myvocable && !!that.gameP){
 			    		that.vocable = '';
 						that.myvocable = null;
-			    	}else{
+			    	}
+			    	if(that.countDown.number == that.gameP && !!that.prompt && !!that.gameP){
 			    		that.prompt = null;
 			    	};
-			    	if(that.countDown.count == 75 && that.countDown.number == that.gameP && !that.myvocable){
+			    	if(that.countDown.count == 75 && that.countDown.number == that.gameP && !that.myvocable && !!that.vocable){
 			    		//20秒未选择自动选择第一个
 						that.myvocable = that.vocable[0];
          				that.socket.emit('setVocable', that.vocable[0]);
@@ -426,14 +429,18 @@ import swiper from '../../../static/swiper/swiper-3.4.2.min.js';
 		    }
 	  	},
 	  	beforeRouteEnter (to, from, next) {
-	  		if(!to.params.room_id){
-	  			return next('/index')
-	  		};
 	  		next(function(vm){
-		  		vm.roomId = to.params.room_id;
-		  		vm.roomName = to.params.name;
+	  			//从房间信息页返回来
+  				var roomInfo = vm.$store.getters.getroomset;
+	  			//房间id不存在
+		  		if(!to.params.room_id && !roomInfo){
+	  				return vm.$router.push('index')
+		  		};
+		  		vm.roomId = roomInfo ? roomInfo.roomId : to.params.room_id;
+		  		vm.roomName = roomInfo ? roomInfo.roomName : to.params.name;
 		  		//传入房间id,进入房间
 		  		vm.socket.emit('enterRoom', {room_id: vm.roomId}, function(res){
+		  			console.log(res.data.room)
 		  			if(res.code == 200){
 		  				//游戏未开始
 		  				vm.roomDetails = res.data.room;
@@ -466,7 +473,21 @@ import swiper from '../../../static/swiper/swiper-3.4.2.min.js';
 	　　　　 screenHeight:'updateMessage',	//当值变化时触发
 			userMsg: 'Scroll',
 			expression: 'expressionBock'
-	　　}
+	　　},
+	    beforeDestroy(){
+	    	//销毁前调用
+         	this.socket.off('allMessages');
+         	this.socket.off('messageAdded');
+         	this.socket.off('userMessage');
+         	this.socket.off('onlineNum');
+         	this.socket.off('startGame');
+         	this.socket.off('startDraw');
+         	this.socket.off('endGame');
+         	this.socket.off('nextBit');
+         	this.socket.off('Vocable');
+         	this.socket.off('vocablePrompt');
+         	this.socket.off('resetCanvas');
+	    }
 	}
 	
 //获取坐标点与颜色画笔类型

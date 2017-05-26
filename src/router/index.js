@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Index from '@/page/index/index'
 import Home from '@/page/index/children/home'
 import Draw from '@/page/game/draw'
+import RoomSet from '@/page/game/roomset'
 import Room from '@/page/index/children/room'
 import Login from '@/page/login/index'
 import Signin from '@/page/login/signin'
@@ -46,6 +47,11 @@ const router = new Router({
     		path: '/draw',
     		name: 'draw',
         component: Draw
+    },
+    {
+    		path: '/roomset',
+    		name: 'RoomSet',
+        component: RoomSet
     },
     {
     		path: '/login',

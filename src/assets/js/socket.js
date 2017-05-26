@@ -48,6 +48,7 @@ function Socket(vm){
 			  		clearInterval(timer);
 			  	}
 			};
+			vm.$router.push('/index/home');
 			reconnec();
 			timer = setInterval(reconnec, 10000);
 		}else{
