@@ -8,7 +8,10 @@
 				</div>
 				<ul class="Hui-leftCon">
 					<li>
-						<a href="javascript:;"><i class="mui-icon mui-icon-image"></i>动态</a>
+						<router-link to="/userinfo"><i class="mui-icon mui-icon-star"></i>个人信息</router-link>
+					</li>
+					<li>
+						<a href="javascript:;"><i class="mui-icon mui-icon-pengyouquan"></i>动态</a>
 					</li>
 					<li>
 						<a href="javascript:;"><i class="mui-icon mui-icon-flag"></i>战绩</a>

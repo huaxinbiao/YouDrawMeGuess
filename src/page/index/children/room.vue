@@ -79,14 +79,14 @@ import ajax from '@/assets/js/ajax';
 		},
 		mounted(){
 			var that = this;
-	    	//主界面和侧滑菜单界面均支持区域滚动；
-	        mui('#room').scroll({
+	        this.getRoom();
+	    	//主界面和侧滑菜单界面均支持区域滚动;
+	        mui('.mui-scroll-wrapper').scroll({
 	        	 indicators: false, //是否显示滚动条
 				 deceleration:0.0005, //阻尼系数,系数越小滑动越灵敏
-				 bounce: false, //是否启用回弹
+				 bounce: true, //是否启用回弹
 	        });
-	        mui('.mui-scroll-wrapper').on('tap','a' ,function(){location.href = this.getAttribute('href')})
-	        this.getRoom();
+        	mui('.mui-scroll-wrapper').on('tap','a' ,function(){location.href = this.getAttribute('href')});
 	   	},
 		methods:{
 			getRoom(){

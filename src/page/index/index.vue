@@ -22,12 +22,15 @@ export default {
   	name: 'index',
   	data(){
   		return {
-		
+			
   		}
   	},
   	mounted(){
   		mui.init();
   	},
+	methods:{
+		
+	},
 	watch: {
 	    '$route' (to, from) {
 	    	//离开隐藏创建房间弹窗

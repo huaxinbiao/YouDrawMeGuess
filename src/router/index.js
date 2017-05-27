@@ -10,6 +10,8 @@ import RoomSet from '@/page/game/roomset'
 import Login from '@/page/login/index'
 import Signin from '@/page/login/signin'
 import Register from '@/page/login/register'
+import UserInfo from '@/page/user/userinfo'
+import SetInfo from '@/page/user/setinfo'
 
 Vue.use(Router);
 
@@ -83,7 +85,19 @@ const router = new Router({
 	      path: '/register',
     		name: 'Register',
 	      component: Register
-    }
+    },
+    {
+	      // 用户信息
+	      path: '/userinfo',
+    		name: 'UserInfo',
+	      component: UserInfo
+    },
+  	{
+  		// 填写信息
+	      path: '/setinfo',
+    		name: 'SetInfo',
+	      component: SetInfo
+  	}
   ]
 })
 router.beforeEach((to, from, next) => {

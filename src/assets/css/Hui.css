@@ -270,6 +270,7 @@ img {
 }
 .Hui-leftCon li a {
   color: #333;
+  display: block;
 }
 .Hui-leftCon li a i {
   font-size: 18px;
