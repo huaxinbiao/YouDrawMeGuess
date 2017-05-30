@@ -48,6 +48,12 @@ function Socket(vm){
 			  		clearInterval(timer);
 			  	}
 			};
+    		vm.$store.commit('setheader', {
+            	icon:'mui-icon-starhalf',
+            	title:'游戏',
+            	url: '/index/home',
+            	centre: 0
+            })
 			vm.$router.push('/index/home');
 			reconnec();
 			timer = setInterval(reconnec, 10000);

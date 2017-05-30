@@ -10,16 +10,16 @@
 					<a id="head" class="mui-navigate-right">
 						头像
 						<span class="mui-pull-right head">
-							<input type="file" accept="image/*" />
+							<input type="file" accept="image/*" v-on:change="upload($event)" />
 							<img class="head-img mui-action-preview" id="head-img1" :src="user && user.head ? user.head : head">
 						</span>
 					</a>
 				</li>
 				<li class="mui-table-view-cell">
-					<router-link :to="{ name: 'SetInfo', params: {type: 'nick'}}" class="mui-navigate-right">昵称<span class="mui-pull-right">{{user?user.nick:'袖手旁观'}}</span></router-link>
+					<router-link :to="{ name: 'SetInfo', params: {type: 1}}" class="mui-navigate-right">昵称<span class="mui-pull-right">{{user?user.nick:'袖手旁观'}}</span></router-link>
 				</li>
 				<li class="mui-table-view-cell">
-					<a class="mui-navigate-right">个性签名<span class="mui-pull-right">好</span></a>
+					<router-link :to="{ name: 'SetInfo', params: {type: 2}}" class="mui-navigate-right">个性签名<span class="mui-pull-right">{{user&&user.individual?user.individual:'你太懒了，懒得写签名了。'}}</span></router-link>
 				</li>
 			</ul>
 		</div>
@@ -27,6 +27,7 @@
 </template>
 
 <script>
+import { UpLoad } from '@/assets/js/function';
 	export default {
 	  	data () {
 	      	return {
@@ -38,10 +39,16 @@
 	  		back(){
 				this.$router.go(-1);
 	  		},
-	  		ready(){
-	  			//console.log(this.roomDetails)
+	  		upload(dom){
+	  			var that = this;
+	  			UpLoad(dom.target, mui, this, function(data){
+	  				data.head = global.API + '/' + data.head;
+	  				that.$store.commit('setuser', data);
+	  				that.user.head = data.head;
+	  				mui.toast('上传成功');
+	  			})
 	  		}
-	  	},
+	  	}
 	}
 </script>
 
@@ -72,6 +79,7 @@
 		line-height: 30px;
 		span{
 			padding-right: 15px;
+			color: #666;
 		}
 	}
 }

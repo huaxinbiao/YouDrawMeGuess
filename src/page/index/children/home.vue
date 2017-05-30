@@ -5,8 +5,8 @@
 	            <div><img :src="user && user.head ? user.head : head"></div>
 	            <div>
 	                <h2>{{user?user.nick:'袖手旁观'}}</h2>
-	                <p>昵称是随机产生的。。。</p>
-	                <span>积分：1000</span>
+	                <p>{{user&&user.individual?user.individual:'你太懒了，懒得写签名了。'}}</p>
+	                <span>积分：{{user&&user.integral?user.integral:0}}</span>
 	            </div>
 	        </div>
 	        <div class="Hui-indexcon">

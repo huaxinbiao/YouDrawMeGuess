@@ -3,7 +3,7 @@
 		<div id="offCanvasSideScroll" class="mui-scroll-wrapper">
 			<div class="mui-scroll" style="height:100%;">
 				<div class="content Hui-leftTop">
-			        <div><img src="../assets/images/default.jpg"><span>{{user?user.nick:'袖手旁观'}}</span></div>
+			        <div><img :src="user&&user.head?user.head:head"><span>{{user?user.nick:'袖手旁观'}}</span></div>
 			        <div><a href="javascript:;">签到</a></div>
 				</div>
 				<ul class="Hui-leftCon">
@@ -35,7 +35,8 @@ import ajax from '@/assets/js/ajax';
 	export default{
 		data(){
 			return {
-				user: this.$store.getters.getuser //获取用户信息
+				user: this.$store.getters.getuser, //获取用户信息
+				head: require('../assets/images/default.jpg')
 			}
 		},
 		mounted(){

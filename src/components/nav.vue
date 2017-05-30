@@ -67,7 +67,28 @@
 	    		this.$store.commit('setheader',item)
 	    		this.$router.push(item.url);
 	    	}
-	    }
+	    },
+		watch: {
+	    	'$route' (to, from) {
+	    		switch (to.name){
+		    		case 'home':
+		    			this.tabindex = 0;
+		    			break;
+		    		case 'room':
+		    			this.tabindex = 1;
+		    			break;
+		    		case 'news':
+		    			this.tabindex = 2;
+		    			break;
+		    		case 'friends':
+		    			this.tabindex = 3;
+		    			break;
+		    		default:
+		    			this.tabindex = 0;
+		    			break;
+		    	}
+	    	}
+	  	}
 	}
 </script>
 
