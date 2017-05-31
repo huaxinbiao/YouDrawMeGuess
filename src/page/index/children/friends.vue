@@ -3,7 +3,7 @@
 		<div class="mui-scroll">
 	        <div class="banner"><img src="../../../assets/images/timg.jpg"></div>
 	        <div class="d-box">
-	        	<div class="my"><img :src="user&&user.head?user.head:head"></div>
+	        	<div class="my"><img :src="user&&user.head?url+user.head:head"></div>
 	        	<div class="d-list">
 	        		<dl>
 	        			<dt><a href="#"><img src="../../../assets/images/default.jpg"></a></dt>
@@ -73,7 +73,8 @@ import ajax from '@/assets/js/ajax';
 		data(){
 			return {
 				user: this.$store.getters.getuser, //获取用户信息
-				head: require('../../../assets/images/default.jpg')
+				head: require('../../../assets/images/default.jpg'),
+				url: global.API+'/'
 			}
 		},
 		mounted(){

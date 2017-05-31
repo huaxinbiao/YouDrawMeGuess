@@ -11,7 +11,7 @@
 						头像
 						<span class="mui-pull-right head">
 							<input type="file" accept="image/*" v-on:change="upload($event)" />
-							<img class="head-img mui-action-preview" id="head-img1" :src="user && user.head ? user.head : head">
+							<img class="head-img mui-action-preview" id="head-img1" :src="user && user.head ? url+user.head : head">
 						</span>
 					</a>
 				</li>
@@ -32,7 +32,8 @@ import { UpLoad } from '@/assets/js/function';
 	  	data () {
 	      	return {
 				user: this.$store.getters.getuser, //获取用户信息
-				head: require('../../assets/images/default.jpg')
+				head: require('../../assets/images/default.jpg'),
+				url: global.API+'/'
 	      	}
 		},
 	  	methods:{
@@ -42,7 +43,6 @@ import { UpLoad } from '@/assets/js/function';
 	  		upload(dom){
 	  			var that = this;
 	  			UpLoad(dom.target, mui, this, function(data){
-	  				data.head = global.API + '/' + data.head;
 	  				that.$store.commit('setuser', data);
 	  				that.user.head = data.head;
 	  				mui.toast('上传成功');

@@ -7,15 +7,7 @@
             <div class="Hui-roomcon">
                 <dl v-for="(item, index) in roomList" v-on:tap="goRoom(item._id, item.name)">
                 	<dt>
-                		<span><img src="../../../assets/images/default.jpg"></span>
-                		<span><img src="../../../assets/images/default.jpg"></span>
-                		<span><img src="../../../assets/images/default.jpg"></span>
-                		<span><img src="../../../assets/images/default.jpg"></span>
-                		<span><img src="../../../assets/images/default.jpg"></span>
-                		<span><img src="../../../assets/images/default.jpg"></span>
-                		<span><img src="../../../assets/images/default.jpg"></span>
-                		<span><img src="../../../assets/images/default.jpg"></span>
-                		<span><img src="../../../assets/images/default.jpg"></span>
+                		<span v-for="(item1, index) in item.gameuserinfo"><img :src="item1&&item1.head?url+item1.head:head"></span>
                 	</dt>
                 	<dd>
                 		<div>
@@ -72,9 +64,11 @@ import ajax from '@/assets/js/ajax';
 		data(){
 			return {
 				name: '', //新建房间名字
+				head: require('../../../assets/images/default.jpg'),
 				playersnumber: 4, //新建房间人数
 				roomList: '', //房间列表
-				complete: false //防止多次提交
+				complete: false, //防止多次提交
+				url: global.API+'/'
 			}
 		},
 		mounted(){

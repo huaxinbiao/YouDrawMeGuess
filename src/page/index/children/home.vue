@@ -2,7 +2,7 @@
 	<div class="mui-content mui-scroll-wrapper">
 		<div class="mui-scroll">
 	        <div class="Hui-indexbar">
-	            <div><img :src="user && user.head ? user.head : head"></div>
+	            <div><img :src="user && user.head ? url+user.head : head"></div>
 	            <div>
 	                <h2>{{user?user.nick:'袖手旁观'}}</h2>
 	                <p>{{user&&user.individual?user.individual:'你太懒了，懒得写签名了。'}}</p>
@@ -38,7 +38,8 @@ import ajax from '@/assets/js/ajax';
 			return {
 				user: this.$store.getters.getuser, //获取用户信息
 				head: require('../../../assets/images/default.jpg'),
-				complete: false
+				complete: false,
+				url: global.API+'/'
 			}
 		},
 		mounted(){
