@@ -1,2 +1,2 @@
-global.API = 'http://api.5rgame.com';
-global.IO = 'http://api.5rgame.com';
+global.API = 'http://192.168.1.227:3000';
+global.IO = 'http://192.168.1.227:3000';

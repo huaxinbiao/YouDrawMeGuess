@@ -4,7 +4,7 @@
 			<div class="mui-scroll" style="height:100%;">
 				<div class="content Hui-leftTop">
 			        <div><img :src="user&&user.head?url+user.head:head"><span>{{user?user.nick:'袖手旁观'}}</span></div>
-			        <div><a href="javascript:;">签到</a></div>
+			        <div><a href="javascript:;" v-on:tap="Sign()">{{sign?'已签到':'签到'}}</a></div>
 				</div>
 				<ul class="Hui-leftCon">
 					<li>
@@ -37,7 +37,8 @@ import ajax from '@/assets/js/ajax';
 			return {
 				user: this.$store.getters.getuser, //获取用户信息
 				head: require('../assets/images/default.jpg'),
-				url: global.API+'/'
+				url: global.API+'/',
+				sign: false
 			}
 		},
 		mounted(){
@@ -56,6 +57,18 @@ import ajax from '@/assets/js/ajax';
 				  		mui.toast(res.msg);
 				  	}
 				})
+			},
+			Sign(){
+				var that = this;
+				if(!this.sign){
+					ajax(this, '/user/sign', 'get', {}, function(vm, res){
+					  	if(res.code == 200){
+					  		that.sign = true;
+					  	}else{
+					  		mui.toast(res.msg);
+					  	}
+					})
+				}
 			}
 		}
 	}
